@@ -26,7 +26,7 @@ class MailGUIController(object):
         if content and footer:
             print('Se enviara el mail')
             response = self.mailingService.clasifyAndMakeSendMails(subject=self.master.subjectEntry.get(),
-                                                        from_='equipodesarrollo@poloticmisiones.com',
+                                                        from_=self.options['us'],
                                                         recipient=self.master.singleRecipientEntry.get(),
                                                         content=self.master.bodyEntry.get('1.0', tk.END),
                                                         _template=os.path.join(os.getcwd(),
