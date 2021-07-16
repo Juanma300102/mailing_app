@@ -5,19 +5,23 @@ import tkinter as tk
 
 
 class MailingScreen(tk.Frame):
-    def __init__(self, _master=None):
+    def __init__(self, _master=None, provider_options: dict=None):
         tk.Frame.__init__(self, master=_master)
-        self.grid(column=0, row=0, sticky=tk.NSEW)
 
         self.style = Style()
-        self.controller = MailGUIController(self)
+        self.controller = MailGUIController(self, provider_options)
 
         self.configure(bg=self.style.BG_COLOR, pady=5, padx=5)
+
+        print('Estableciendo pantalla de mailing...')
 
         _master.title('Servicio de mailing')
         _master.geometry('650x450')
         _master.resizable(height=False, width=False)
+        self.grid(column=0, row=0, sticky=tk.NSEW)
 
+        print('Pantalla establecida correctamente')
+        
         self._setup_widgets()
         self._set_recipients_frame()
         self._set_mail_frame()
@@ -58,3 +62,9 @@ class MailingScreen(tk.Frame):
         self.footerEntry.grid(column=0, row=2, sticky=tk.EW)
 
         self.mailFrame.adjust_grid_weight()
+        
+    def _minimize(self):
+        self.master.iconify()
+        
+    def _maximize(self):
+        self.master.deiconify()

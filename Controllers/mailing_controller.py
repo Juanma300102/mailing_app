@@ -1,22 +1,20 @@
-from common_services import MailingService, CsvLoader
+from common_services import *
 import configparser
 from tkinter import messagebox
 import tkinter as tk
-from Controllers.login_controller import LogInGUIController
 import os
 import smtplib
 
 class MailGUIController(object):
-    def __init__(self, _master_screen):
+    def __init__(self, _master_screen, _options: dict):
         self.master = _master_screen
+        self.options = _options
+        self.mailingService = MailingService(_host=self.options['host'],
+                                             _port=self.options['port'])
+        self.mailingService.logIn(self.options['us'], self.options['pw'])
 
-        self.settings = configparser.ConfigParser()
-        self.settings.read(os.path.join(os.getcwd(), 'options.ini'))
-
-        self.logInScreen = LogInGUIController(self.master)
+        # TODO Completar login task y route de los datos desde loginScreen                                        
         
-        self.mailingService = MailingService(self.settings.get('DEFAULT', 'host'), self.settings.get('DEFAULT', 'port'))
-        self.logInScreen.make_login()
 
     def evaluate_state_for_sending(self):
         # CHECK RECIPIENTS MODE
@@ -33,12 +31,14 @@ class MailGUIController(object):
                                                         content=self.master.bodyEntry.get('1.0', tk.END),
                                                         _template=os.path.join(os.getcwd(),
                                                                                'Templates',
-                                                                               self.settings['DEFAULT']['template']),
+                                                                               self.options['template']),
                                                         multiple_recipients=False,
                                                         footer=self.master.footerEntry.get(),
-                                                        name='')
-            print(response.errno) if type(response) is smtplib.SMTPException else None
+                                                        _name='')
 
+            #TODO trying to catch session timeout errno
+            print(response.errno) if type(response) is smtplib.SMTPException else None
+        
     def _evaluate_recipient_entry(self, entry):
         print('Evaluating recipient...')
         content = entry.get()

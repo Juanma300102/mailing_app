@@ -113,3 +113,43 @@ class Text(tk.Text):
     def get_content(self):
         content = self.get('1.0', tk.END)
         return content
+    
+
+class OptionMenu(tk.OptionMenu):
+    def __init__(self, _master, _variable=None, _values=None, default=None, _command=None):
+        self.var = tk.StringVar()
+        self.options = _values
+        
+        tk.OptionMenu.__init__(self, _master, self.var, *_values, command=_command)
+        self.var.set(default) if default is not None else None
+        
+        self.master = _master
+        self.style = self.master.style
+        
+        self._set_style()
+        
+    def _set_style(self):
+        self['bg']=self.style.BG_COLOR
+        self['fg']=self.style.TEXT_COLOR
+        self['highlightthickness']=0
+        self['borderwidth']=0
+        self['indicatoron']=0
+        self['activebackground']=self.style.BG_COLOR_LIGHT
+        self['activeforeground']=self.style.TEXT_COLOR
+        
+        self['menu']['bg']=self.style.BG_COLOR
+        self['menu']['fg']=self.style.TEXT_COLOR
+        self['menu']['activebackground']=self.style.BG_COLOR_LIGHT
+        self['menu']['activeforeground']=self.style.TEXT_COLOR
+        self['menu']['relief']=self.style.relief
+        self['menu']['activeborderwidth']=0
+
+    def get_current_selection(self):
+        return self.var.get()
+    
+    def get_options(self):
+        return self.options
+    
+    def set_(self, option):
+        self.var.set(option)
+    

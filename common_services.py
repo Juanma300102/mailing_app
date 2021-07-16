@@ -8,7 +8,7 @@ from email.mime.text import MIMEText
 from time import sleep
 import os
 import csv
-import earthpy as et
+import configparser
 
 """
 autor: Pedrozo Juan Martin
@@ -51,16 +51,18 @@ class MailingService(object):
         :return:
         """
         try:
+            print('Iniciando sesion...')
             self.conn.connect(host=self.host, port=self.port)
             self.conn.ehlo_or_helo_if_needed()
             self.conn.login(us, pw)
             self.conn.auth_login()
             print('Login exitoso')
         except smtplib.SMTPException as a:
-            messagebox.showerror('Fallo de LogIn', str(a))
+            print(f'Error: Fallo al intentar login\n{a}')
+            messagebox.showerror('Fallo de LogIn\n', str(a))
 
     def clasifyAndMakeSendMails(self, subject, from_, recipient, content, multiple_recipients, _template, footer=None,
-                                name=None, pdf=None):
+                                _name=None, pdf=None):
         """
         Funcion para clasificar y ejecutar el envio de mails de acuerdo a los parametros recibidos.
 
@@ -79,7 +81,7 @@ class MailingService(object):
         try:
             if not multiple_recipients:
                 mail = self.makeMail(_content=content,
-                                     name=name,
+                                     name=_name,
                                      from_=from_,
                                      recipient=recipient,
                                      template=_template,
@@ -97,7 +99,7 @@ class MailingService(object):
                 self.conn.ehlo_or_helo_if_needed()
                 response = self.conn.send_message(mail)
                 del mail
-                print(f'Single mail sended to {name} {recipient}')
+                print(f'Single mail sended to {_name} {recipient}')
                 print(f'Respuesta: {response}')
                 return response
 
@@ -150,7 +152,7 @@ class MailingService(object):
         :param recipient: str
         :return: mail class MIMEMultipart
         """
-        mail = MIMEMultipart()
+        mail = MIMEMultipart('alternative')
         msj = self.getTemplate(template)
         msj = Template(msj.safe_substitute(content=_content.strip()))
         msj = msj.safe_substitute(nombre=name.title(), pie=footer.title())
@@ -223,3 +225,24 @@ class CsvLoader(object):
         :return:
         """
         self.csvFile.close()
+        
+
+class INIManager(object):
+    def __init__(self, path_to_ini):
+        self.reader = configparser.ConfigParser()
+        self.path = path_to_ini
+    
+    def get(self, section, option):
+        self.reader.read(self.path)
+        return self.reader.get(section, option)
+        
+    
+    def set_(self, section, option, value):
+        self.reader.read(self.path)
+        self.reader.set(section, option, value)
+        return value
+    
+    def sections(self):
+        self.reader.read(self.path)
+        return self.reader.sections()
+        

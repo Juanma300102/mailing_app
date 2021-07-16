@@ -1,18 +1,28 @@
 import tkinter as tk
 from widgets import *
 from style import Style
+from Screens.start_options_screen import *
+from Controllers.login_controller import LogInGUIController
 
 class LoginScreen(tk.Frame):
-    def __init__(self, Master=None):
-        tk.Frame.__init__(self, master=Master)
-        Master.geometry('250x200')
+    def __init__(self, _master=None, app=None):
+        tk.Frame.__init__(self, master=_master)
+        self.app = app
+        self.master = _master
+        self.master.title('Log in')
+        self.master.geometry('350x180')
+        self.master.resizable(width=True, height=False)
 
         self.style = Style()
         self.configure(bg=self.style.BG_COLOR)
+        self.columnconfigure(0, weight=3)
+        self.columnconfigure(1, weight=1)
         self.grid(column=0, row=0, sticky=tk.NSEW)
-        self.columnconfigure(0, weight=1)
 
+        self.controller = LogInGUIController(self)
         self.set_login_widgets()
+
+        self.logInButton.config(command=lambda: self.controller._make_login())
 
 
     def set_login_widgets(self):
@@ -27,4 +37,6 @@ class LoginScreen(tk.Frame):
 
         self.logInButton = Button(self, _text='Acceder')
         self.logInButton.grid(column=0, row=3, pady=10)
+        
+        self.config_ = StartOptionsScreen(self)
 
