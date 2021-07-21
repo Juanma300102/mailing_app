@@ -35,6 +35,7 @@ class StartOptionsScreen(tk.Frame):
     def get_host_info(self):
             if self.hostMenu.get_current_selection() != 'Elegir servicio':
                 host_provider = self.hostMenu.get_current_selection()
+                self.controller._act_host_provider(host_provider)
                 host_info = [self.controller.get_host_of(host_provider),
                              self.controller.get_port_of(host_provider)]
                 return host_info
