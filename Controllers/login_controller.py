@@ -1,3 +1,4 @@
+from smtplib import SMTPException
 from common_services import *
 from Screens.mailing_screen import MailingScreen
 from tkinter import messagebox
@@ -18,9 +19,14 @@ class LogInGUIController(object):
                           'us': self.master_GUI.userEntry.get(),
                           'pw': self.master_GUI.passEntry.get(),
                           'template': self.master_GUI.config_.controller.get_template()}
-            self.master_GUI.config_.get_host_info()
-            self.master_GUI.grid_forget()
-            self.app.mailingScreen = MailingScreen(self.master_GUI.master, login_data) # Se inicializa la pantalla de la app si email y pass son True. _master = app.root
+            try:
+                self.app.mailingScreen = MailingScreen(self.master_GUI.master, login_data) # Se inicializa la pantalla de la app si email y pass son True. _master = app.root
+                self.master_GUI.grid_forget()
+            except SMTPException as err:
+                print(f'Error: No es posible ingresar.\n {err} \n {err.args[0]} \n{err.strerror} \n {err.errno}')
+                if err.args[0] == 535:
+                    messagebox.showinfo('No se pudo ingresar', 'Usuario y/o contraseña incorrectos')
+                    
             
             
             # TODO forget this of the root. And stablish the getter from root for login info

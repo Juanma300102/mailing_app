@@ -61,7 +61,7 @@ class MailingService(object):
             print('Login exitoso')
         except smtplib.SMTPException as a:
             print(f'Error: Fallo al intentar login\n{a}')
-            messagebox.showerror('Fallo de LogIn\n', str(a))
+            raise a
 
     def clasifyAndMakeSendMails(self, subject, from_, recipient, content, multiple_recipients, _template, footer=None,
                                 _name='', pdf=None, cc='', bcc='', continue_in=0):

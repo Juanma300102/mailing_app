@@ -12,10 +12,8 @@ class MailGUIController(object):
         self.mailingService = MailingService(_host=self.options['host'],
                                              _port=self.options['port'])
         self.mailingService.logIn(self.options['us'], self.options['pw'])
-
-        # TODO Completar login task y route de los datos desde loginScreen                                        
+                                                 
         
-
     def evaluate_state_for_sending(self):
         # CHECK RECIPIENTS MODE
         self._evaluate_recipient_entry(self.master.singleRecipientEntry)
@@ -29,7 +27,7 @@ class MailGUIController(object):
                                                         from_=self.options['us'],
                                                         recipient=self.master.singleRecipientEntry.get(),
                                                         content=self.master.bodyEntry.get('1.0', tk.END),
-                                                        _template=os.path.join(os.getcwd(), 'MAILING_APP',
+                                                        _template=os.path.join(os.getcwd(),
                                                                                'Templates',
                                                                                self.options['template']),
                                                         multiple_recipients=False,

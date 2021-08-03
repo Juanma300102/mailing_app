@@ -6,7 +6,7 @@ class StartOptionsGUIController(object):
     def __init__(self, _master):
         self.master = _master
         self.options = configparser.ConfigParser()
-        self.options.read(os.path.join(os.getcwd(), 'MAILING_APP', 'options.ini'))
+        self.options.read(os.path.join(os.getcwd(), 'options.ini'))
         
     def get_options_sections(self):
         return self.options.sections()

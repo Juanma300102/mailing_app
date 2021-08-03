@@ -1,3 +1,5 @@
+from os import error
+from smtplib import SMTP, SMTPException
 from style import Style
 from widgets import *
 from Controllers.mailing_controller import MailGUIController
@@ -9,7 +11,11 @@ class MailingScreen(tk.Frame):
         tk.Frame.__init__(self, master=_master)
 
         self.style = Style()
-        self.controller = MailGUIController(self, provider_options)
+        try:
+            self.controller = MailGUIController(self, provider_options)
+        except SMTPException as err:
+            print(f'Error al intentar iniciar mailGuiController \n {err} \n {err.args} \n{err.strerror} \n {err.errno}')
+            raise err
 
         self.configure(bg=self.style.BG_COLOR, pady=5, padx=5)
 

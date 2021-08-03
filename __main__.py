@@ -11,8 +11,7 @@ class Main(object):
     mailingScreen: MailingScreen
     def __init__(self):
         self.root = tk.Tk()
-        self.login_screen = LoginScreen(self.root)#LoginScreen(self.root, self)
-        
+        self.login_screen = LoginScreen(self.root, self)
         self.fix_columns()
         self.loop()
 
@@ -21,7 +20,7 @@ class Main(object):
         self.root.rowconfigure([i for i in range(0, self.root.grid_size()[1])], weight=1)
 
     def loop(self):
-        while True:
+        while True: 
             try:
                 self.root.update()
                 self.root.update_idletasks()
