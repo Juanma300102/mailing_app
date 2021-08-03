@@ -11,7 +11,7 @@ class Main(object):
     mailingScreen: MailingScreen
     def __init__(self):
         self.root = tk.Tk()
-        self.login_screen = LoginScreen(self.root, self)#LoginScreen(self.root, self)
+        self.login_screen = LoginScreen(self.root)#LoginScreen(self.root, self)
         
         self.fix_columns()
         self.loop()
