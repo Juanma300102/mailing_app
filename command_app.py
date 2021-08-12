@@ -5,23 +5,24 @@ from sys import path
 from common_services import *
 
 def main():
-    mailingBox = MailingService('smtp.gmail.com', 465)
-    mailingBox.logIn('cursospoloticmisiones@gmail.com', 'ultraTicStar32')
+    mailingBox = MailingService('smtp.hostinger.com', 465)
+    mailingBox.logIn('no-reply2@poloticmisiones.com', 'Poloticmailing2021')
 
-    csvPath =  '/home/juanma/Escritorio/TRABAJO/2021/ADVA/TALLERES/inscriptos_taller3_Adva.csv'  # os.path.join(os.getcwd(),'tests_mails.csv')  
+    csvPath = '/home/juanma/Escritorio/TRABAJO/2021/CURSOS/INTRO PROG 2 EDICION/SILICON/INSCRIPTOS.csv' # os.path.join(os.getcwd(),'tests_mails.csv')
     csvLoader = CsvLoader(csvPath, 'r', ['correo', 'nombre', 'apellido', 'dni', 'pdf'])
 
     recipients = csvLoader.getContentAsList(firstLineHeaders=True)
-    #recipients.append(['comunicacionpoloticmisiones@gmail.com', 'Florencia', '', '', ''])
+    recipients.append(['comunicacionpoloticmisiones@gmail.com', 'Flor', '', '', ''])
+    recipients.append(['recepcionpoloticmisiones@gmail.com', 'polo', '', '', ''])
     # recipients.append(['pedrozo.juanma@gmail.com', 'Juan Martin', 'Pedrozo',/home/juanma/Escritorio/PYTHON/Proyectos_Polo/tests_mails.csv' '43944733', ''])
 
     #recipients = 'rodriguezmarianela81@gmail.com'
-    subject = 'Segundo encuentro - Taller de Programacion de Videojuegos'
-    from_= 'Equipo Polo Tic'
+    subject = 'Curso Introduccion a la Programacion'
+    from_= 'Silicon Misiones <no-reply2@poloticmisiones.com>'
     _content = ''                        
-    _footer = 'Equipo Polo Tic'
+    _footer = 'Equipo Silicon Misiones'
     
-    template = os.path.join(os.getcwd(), 'Templates', 'ADVA', 'ADVA_TALLER_3.html')
+    template = '/home/juanma/Escritorio/PYTHON/mailing_templates/CURSOS/SILICON/introduccion_programacion/AVISO_PRIMERA_CLASE.html'
 
     mailingBox.clasifyAndMakeSendMails(subject=subject,
                                        from_=from_,
@@ -31,7 +32,7 @@ def main():
                                        multiple_recipients=True,
                                        footer=_footer,
                                        #_name='Marianela',
-                                       continue_in=6) #TODO Enviar correo a java SILICON (solo link)
+                                       continue_in=0) #TODO Enviar correo a java SILICON (solo link)
     csvLoader.close()
     mailingBox.conn.close()
 
