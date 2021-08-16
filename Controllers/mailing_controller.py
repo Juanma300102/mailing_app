@@ -27,10 +27,10 @@ class MailGUIController(object):
                                                         from_=self.options['us'],
                                                         recipient=self.master.singleRecipientEntry.get(),
                                                         content=self.master.bodyEntry.get('1.0', tk.END),
-                                                        _template=os.path.join(os.getcwd(),
+                                                        template_=os.path.join(os.getcwd(),
                                                                                'Templates',
                                                                                self.options['template']),
-                                                        multiple_recipients=False,
+                                                        is_list_of_recipiets=False,
                                                         footer=self.master.footerEntry.get(),
                                                         _name='')
 

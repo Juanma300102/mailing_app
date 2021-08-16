@@ -63,7 +63,7 @@ class MailingService(object):
             print(f'Error: Fallo al intentar login\n{a}')
             raise a
 
-    def clasifyAndMakeSendMails(self, subject, from_, recipient, content, multiple_recipients, _template, footer=None,
+    def clasifyAndMakeSendMails(self, subject, from_, recipient, content, is_list_of_recipiets:bool, template_, footer=None,
                                 _name='', pdf=None, cc='', bcc='', continue_in=0):
         """
         Funcion para clasificar y ejecutar el envio de mails de acuerdo a los parametros recibidos.
@@ -81,65 +81,32 @@ class MailingService(object):
         """
         self.conn.auth_login()
         try:
-            if not multiple_recipients:
-                mail = self.makeMail(_content=content,
-                                     name=_name,
-                                     from_=from_,
-                                     recipient=recipient,
-                                     template=_template,
-                                     subject=subject,
-                                     footer=footer,
-                                     _cc=cc,
-                                     _bcc=bcc)
-
-                if pdf is not None:
-                    with open(pdf, 'rb') as pdf_:
-                        part = MIMEApplication(pdf_.read(), Name=os.path.basename(pdf))
-
-                    part['Content-Disposition'] = f'attachment; filename={os.path.basename(pdf)}'
-                    mail.attach(part)
-
-                self.conn.ehlo_or_helo_if_needed()
-                response = self.conn.send_message(mail)
-                del mail
-                self.mailSendedCounter += 1
-                print(f'{datetime.datetime.now()} {self.mailSendedCounter} Single mail sended to {_name} {recipient}')
-                print(f'Respuesta: {response}')
-                return response
+            if not is_list_of_recipiets:
+                response = self._send_single_mail(content=content,
+                                                name_=_name,
+                                                from_=from_,
+                                                recipient=recipient,
+                                                template_=template_,
+                                                subject=subject,
+                                                footer=footer,
+                                                cc=cc,
+                                                bcc=bcc,
+                                                _pdf = pdf)
             
             else: # Caso que se envien a recipientes multiples
                 if type(recipient) is list:
                     for email, name_, lastname, dni, pdf in recipient:
-                        mail = self.makeMail(subject=subject,
-                                             recipient=email,
-                                             name=f'{name_} {lastname}',
-                                             from_=from_,
-                                             template=_template,
-                                             _content=content,
-                                             footer=footer)
-                        # print(pdf)
-                        if pdf is not None and pdf != '':
-                            with open(pdf, 'rb') as pdf_:
-                                part = MIMEApplication(pdf_.read(), Name=os.path.basename(pdf))
-
-                            part['Content-Disposition'] = f'attachment; filename={os.path.basename(pdf)}'
-                            mail.attach(part)
-                        
-                        if self.mailSendedCounter > continue_in: # catch por si ocurre Exception por cantidad de mails enviados 
-                            try:
-                                self.conn.send_message(mail)
-                            except smtplib.SMTPException as e:
-                                print(f'Error: {e}\nSe esperara 5 minutos para reanudar')
-                                # messagebox.showwarning(f'Error {e.errno}', f'{e}\nSe esperara 5 minutos para reanudar')
-                                sleep(300)
-                                print('Reanudando...')
-                                self.conn.close()
-                                self.logIn(self.us, self.pw)
-                                self.conn.send_message(mail)
-
-                            del mail
-                            print(f'{datetime.datetime.now()} {self.mailSendedCounter} Mail sended to: {email}, {name_} {lastname}')
-                        self.mailSendedCounter += 1
+                        self._send_single_mail(content=content,
+                                               name_=f'{name_} {lastname}',
+                                               from_=from_,
+                                               recipient=email,
+                                               template_=template_,
+                                               subject=subject,
+                                               footer=footer,
+                                               cc=cc,
+                                               bcc=bcc,
+                                               _pdf=pdf,
+                                               continue_in=continue_in)
                     self.reset_counter()
                 else:
                     print('Recipient must be a list')
@@ -147,7 +114,40 @@ class MailingService(object):
             print(f'ERROR: {err}\n\nMail counter: {self.mailSendedCounter - 1}')
             return err
 
-    def makeMail(self, _content: str, from_, subject, recipient, template, footer='', name='', _cc='', _bcc=''):
+    def _send_single_mail(self, content, name_, from_, recipient, template_, subject, footer, cc, bcc, _pdf, continue_in:int = 0):
+        mail = self._makeMail(_content=content,
+                                     name=name_,
+                                     from_=from_,
+                                     recipient=recipient,
+                                     template=template_,
+                                     subject=subject,
+                                     footer=footer,
+                                     _cc=cc,
+                                     _bcc=bcc)
+
+        if _pdf is not None and _pdf != '':
+            with open(_pdf, 'rb') as pdf_:
+                part = MIMEApplication(pdf_.read(), Name=os.path.basename(_pdf))
+            part['Content-Disposition'] = f'attachment; filename={os.path.basename(_pdf)}'
+            mail.attach(part)
+        
+        if self.mailSendedCounter > continue_in: # catch por si ocurre Exception por cantidad de mails enviados 
+            try:
+                self.conn.send_message(mail)
+            except smtplib.SMTPException as e:
+                print(f'Error: {e}\nSe esperara 5 minutos para reanudar')
+                # messagebox.showwarning(f'Error {e.errno}', f'{e}\nSe esperara 5 minutos para reanudar')
+                sleep(300)
+                print('Reanudando...')
+                self.conn.close()
+                self.logIn(self.us, self.pw)
+                self.conn.send_message(mail)
+
+            del mail
+            print(f'{datetime.datetime.now().strftime("%H:%M:%S")} {self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
+        self.mailSendedCounter += 1
+    
+    def _makeMail(self, _content: str, from_, subject, recipient, template, footer='', name='', _cc='', _bcc=''):
         """
         Funcion para crear el objeto mail a enviar. Lo retorna al proceso que lo llama.
 
@@ -255,7 +255,7 @@ class CsvLoader(object):
         self.csvFile.close()
         
 
-class INIManager(object):
+class INIManager(object): #TODO por completar
     def __init__(self, path_to_ini):
         self.reader = configparser.ConfigParser()
         self.path = path_to_ini
