@@ -95,18 +95,24 @@ class MailingService(object):
             
             else: # Caso que se envien a recipientes multiples
                 if type(recipient) is list:
+                    recipients_stack = []
+                    recipients_counting = 0
                     for email, name_, lastname, dni, pdf in recipient:
-                        self._send_single_mail(content=content,
-                                               name_=f'{name_} {lastname}',
-                                               from_=from_,
-                                               recipient=email,
-                                               template_=template_,
-                                               subject=subject,
-                                               footer=footer,
-                                               cc=cc,
-                                               bcc=bcc,
-                                               _pdf=pdf,
-                                               continue_in=continue_in)
+                        recipients_stack.append(email)
+                        recipients_counting+=1
+                        if len(recipients_stack) == 50 or recipients_counting == len(recipient):
+                            self._send_single_mail(content=content,
+                                                name_='',
+                                                from_=from_,
+                                                recipient=email,
+                                                template_=template_,
+                                                subject=subject,
+                                                footer=footer,
+                                                cc=cc,
+                                                bcc=', '.join(recipients_stack),
+                                                _pdf=pdf,
+                                                continue_in=continue_in)
+                            
                     self.reset_counter()
                 else:
                     print('Recipient must be a list')
@@ -144,7 +150,13 @@ class MailingService(object):
                 self.conn.send_message(mail)
 
             del mail
-            print(f'{datetime.datetime.now().strftime("%H:%M:%S")} {self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
+            if bcc == '':
+                print(f'{datetime.datetime.now().strftime("%H:%M:%S")} {self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
+            elif bcc != '' and cc == '':
+                print(f'{datetime.datetime.now().strftime("%H:%M:%S")} {self.mailSendedCounter} Mail sended to: {bcc} by bcc')
+            elif bcc != '' and cc != '':
+                print(f'{datetime.datetime.now().strftime("%H:%M:%S")} {self.mailSendedCounter} Mail sended to: {bcc} by bcc \n and to {cc} by cc')
+                
         self.mailSendedCounter += 1
     
     def _makeMail(self, _content: str, from_, subject, recipient, template, footer='', name='', _cc='', _bcc=''):
