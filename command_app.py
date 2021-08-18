@@ -5,33 +5,35 @@ from common_services import *
 
 def main():
     mailingBox = MailingService('smtp.hostinger.com', 465)
-    mailingBox.logIn('no-reply2@poloticmisiones.com', 'Poloticmailing2021')
+    mailingBox.logIn('no-reply1@poloticmisiones.com', 'Poloticmailing2021')
 
-    csvPath = os.path.join(os.getcwd(),'tests_mails.csv') #' '/home/juanma/Escritorio/TRABAJO/2021/CURSOS/JAVA EDICION 2/aprobados.csv' # 
+    csvPath = '/home/juanma/Escritorio/TRABAJO/2021/CURSOS/INTRO PROG 2 EDICION/SILICON/MISIONEROS_PARA_SILICON.csv' # os.path.join(os.getcwd(),'tests_mails.csv')# 
     csvLoader = CsvLoader(csvPath, 'r', ['correo', 'nombre', 'apellido', 'dni', 'pdf'])
 
-    # recipients = csvLoader.getContentAsList(firstLineHeaders=True)
+    recipients = csvLoader.getContentAsList(firstLineHeaders=True)
     # recipients.append(['comunicacionpoloticmisiones@gmail.com', 'Flor', '', '', ''])
     # recipients.append(['recepcionpoloticmisiones@gmail.com', 'polo', '', '', ''])
     # recipients.append(['pedrozo.juanma@gmail.com', 'Juan Martin', 'Pedrozo',/home/juanma/Escritorio/PYTHON/Proyectos_Polo/tests_mails.csv' '43944733', ''])
 
-    recipients = 'pedrozo.juanma@gmail.com'
-    subject = 'Trayecto Desarrollo Web Fullstack con Java'
-    from_= 'Silicon Misiones <no-reply2@poloticmisiones.com>'
+    # recipients = 'gerardocabraltw@gmail.com'
+    subject = 'Trayecto Introduccion a la Programacion'
+    from_= 'Silicon Misiones <no-reply1@poloticmisiones.com>'
     _content = ''                        
     _footer = 'Equipo Silicon Misiones'
+    #bcc = 'pedrozo.juanma@gmail.com'
     
-    template = '/home/juanma/Escritorio/PYTHON/mailing_templates/CURSOS/SILICON/JAVA/AVISO_SEGUNDA_CLASE.html'
+    template = '/home/juanma/Escritorio/PYTHON/mailing_templates/CURSOS/SILICON/introduccion_programacion/AVISO_PRIMERA_CLASE.html'
 
     mailingBox.clasifyAndMakeSendMails(subject=subject,
                                        from_=from_,
                                        recipient=recipients,
                                        template_=template,
                                        content=_content,
-                                       is_list_of_recipiets=False,
+                                       is_list_of_recipiets=True,
                                        footer=_footer,
-                                       _name='Juan Martin Pedrozo',
-                                       continue_in=0) #TODO Enviar correo a java SILICON (solo link)
+                                       #_name='Marcos Gerardo Cabral',
+                                       #bcc=bcc,
+                                       continue_in=0) 
     csvLoader.close()
     mailingBox.conn.close()
 

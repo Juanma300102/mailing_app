@@ -10,6 +10,7 @@ import os
 import csv
 import configparser
 import datetime
+import time
 
 """
 autor: Pedrozo Juan Martin
@@ -107,6 +108,7 @@ class MailingService(object):
                                                bcc=bcc,
                                                _pdf=pdf,
                                                continue_in=continue_in)
+                        time.sleep(5)
                     self.reset_counter()
                 else:
                     print('Recipient must be a list')
