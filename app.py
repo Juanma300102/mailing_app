@@ -1,41 +1,37 @@
-from flask import Flask
-from flask import render_template
-from flask import request
+from flask import Flask, request, render_template, redirect, flash, url_for
 import os
-from common_services import MailingService
+from werkzeug.utils import secure_filename
+from classes.common_services import MailingService
+from classes.file_checker import FileChecker
 
-app = Flask('testapp')
-app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploaded_files')
+app = Flask(__name__)
+
+app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
 app.config['MAX_CONTENT_PATH'] = 10485760
-
-
-@app.route('/')
-def home():
-    return render_template('home.html')
-
-@app.route('/single_mail', methods=['GET', 'POST'])
-def enviar_mail():
-    if request.method == 'GET':
-        return render_template('form.html')
-    elif request.method == 'POST':
-        mailingbox = MailingService('smtp.hostinger.com', 465)
-        mailingbox.logIn('no-reply2@poloticmisiones.com', 'Poloticmailing2021')
-        
-        mailingbox.clasifyAndMakeSendMails(subject=request.form.get('asunto', type=str),
-                                           from_='no-reply2@poloticmisiones.com',
-                                           recipient=request.form.get('correo', type=str),
-                                           content=request.form.get('cuerpo', type=str),
-                                           multiple_recipients=False,
-                                           _template='templates/mail_template.html',
-                                           footer=request.form.get('pie', type=str))
-        return 'correo enviado'
+app.config['SECRET_KEY'] = os.urandom(16)
     
-@app.route('/mailing', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def mailing():
+    checker = FileChecker(app)
+
     if request.method == 'GET':
-        return render_template('mailing.html')
+        return render_template('home.html')
     elif request.method == 'POST':
-        pass
+        if checker.check_file('csv', request):
+            dest_csv = request.files.get('csv')
+            dest_csv.save(os.path.join(app.config['UPLOAD_FOLDER'] ,secure_filename(dest_csv.filename)))
+        else:
+            flash('Algo salio mal con la lista de  destinatarios', category='error')
+            return redirect(request.url)
+            
+        if checker.check_file('plantilla', request):
+            template = request.files.get('plantilla')
+            template.save(os.path.join(app.config['UPLOAD_FOLDER'], secure_filename(template.filename)))
+        else:
+            flash('Algo salio mal con la plantilla', category='error')
+            return redirect(request.url)
+        return 'Subido correctamente'
+        
         
 
 app.run(debug=True)
