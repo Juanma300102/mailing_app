@@ -101,6 +101,7 @@ class MailingService(object):
                         recipients_stack.append(email)
                         recipients_counting+=1
                         if len(recipients_stack) == 50 or recipients_counting == len(recipient):
+                            print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: Recipients length: {len(recipients_stack)}')
                             self._send_single_mail(content=content,
                                                 name_='',
                                                 from_=from_,
@@ -112,7 +113,7 @@ class MailingService(object):
                                                 bcc=', '.join(recipients_stack),
                                                 _pdf=pdf,
                                                 continue_in=continue_in)
-                            
+                            recipients_stack = []
                     self.reset_counter()
                 else:
                     print('Recipient must be a list')
