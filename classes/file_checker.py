@@ -1,6 +1,6 @@
 
 
-class FileChecker:
+class Checker:
     def __init__(self, app) -> None:
         self.app = app
     
@@ -9,6 +9,13 @@ class FileChecker:
             return False
         elif file in request.files:
             return True
+    
+    def check_form_part(self, part:str, request):
+        if part not in request.form:
+            pass
+        elif part in request.form:
+            pass
+        
         
         
         

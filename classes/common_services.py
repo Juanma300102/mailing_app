@@ -14,7 +14,9 @@ import datetime
 """
 autor: Pedrozo Juan Martin
 contacto: pedrozo.juanma@gmail.com
+
 Servicios comunes para PoloTic Misiones
+
 Servicios creados actualmente:
     -Mailing service
     -CSVLoader
@@ -31,6 +33,7 @@ class MailingService(object):
             -port
             -conn: inicia la conexion con el proveedor SMTP
         Parametros obligatorios:
+
         :param _host: str
         :param _port: int
         """
@@ -41,6 +44,7 @@ class MailingService(object):
         """
         Funcion Log in:
         Inicia secion con el par user/password ingresado como paramentros.
+
         :param us: str
         :param pw: str
         :return:
@@ -59,10 +63,11 @@ class MailingService(object):
             print(f'Error: Fallo al intentar login\n{a}')
             raise a
 
-    def clasifyAndMakeSendMails(self, subject, from_, recipient, content, multiple_recipients, _template, footer='',
+    def clasifyAndMakeSendMails(self, subject, from_, recipient, content, is_list_of_recipiets:bool, template_, footer=None,
                                 _name='', pdf=None, cc='', bcc='', continue_in=0):
         """
         Funcion para clasificar y ejecutar el envio de mails de acuerdo a los parametros recibidos.
+
         :param template: path to html template
         :param footer: str
         :param subject: str
@@ -74,77 +79,95 @@ class MailingService(object):
         :param pdf: str
         :return:
         """
-        self.conn.auth_login()
         try:
-            if not multiple_recipients:
-                mail = self.makeMail(_content=content,
-                                     name=_name,
-                                     from_=from_,
-                                     recipient=recipient,
-                                     template=_template,
-                                     subject=subject,
-                                     footer=footer,
-                                     _cc=cc,
-                                     _bcc=bcc)
-
-                if pdf is not None:
-                    with open(pdf, 'rb') as pdf_:
-                        part = MIMEApplication(pdf_.read(), Name=os.path.basename(pdf))
-
-                    part['Content-Disposition'] = f'attachment; filename={os.path.basename(pdf)}'
-                    mail.attach(part)
-
-                self.conn.ehlo_or_helo_if_needed()
-                response = self.conn.send_message(mail)
-                del mail
-                self.mailSendedCounter += 1
-                print(f'{datetime.datetime.now()} {self.mailSendedCounter} Single mail sended to {_name} {recipient}')
-                print(f'Respuesta: {response}')
-                return response
+            if not is_list_of_recipiets:
+                response = self._send_single_mail(content=content,
+                                                name_=_name,
+                                                from_=from_,
+                                                recipient=recipient,
+                                                template_=template_,
+                                                subject=subject,
+                                                footer=footer,
+                                                cc=cc,
+                                                bcc=bcc,
+                                                _pdf = pdf)
             
             else: # Caso que se envien a recipientes multiples
                 if type(recipient) is list:
+                    recipients_stack = []
+                    recipients_counting = 0
                     for email, name_, lastname, dni, pdf in recipient:
-                        mail = self.makeMail(subject=subject,
-                                             recipient=email,
-                                             name=f'{name_} {lastname}',
-                                             from_=from_,
-                                             template=_template,
-                                             _content=content,
-                                             footer=footer)
-                        # print(pdf)
-                        if pdf is not None and pdf != '':
-                            with open(pdf, 'rb') as pdf_:
-                                part = MIMEApplication(pdf_.read(), Name=os.path.basename(pdf))
-
-                            part['Content-Disposition'] = f'attachment; filename={os.path.basename(pdf)}'
-                            mail.attach(part)
-                        
-                        if self.mailSendedCounter > continue_in: # catch por si ocurre Exception por cantidad de mails enviados 
-                            try:
-                                self.conn.send_message(mail)
-                            except smtplib.SMTPException as e:
-                                print(f'Error: {e}\nSe esperara 5 minutos para reanudar')
-                                # messagebox.showwarning(f'Error {e.errno}', f'{e}\nSe esperara 5 minutos para reanudar')
-                                sleep(300)
-                                print('Reanudando...')
-                                self.conn.close()
-                                self.logIn(self.us, self.pw)
-                                self.conn.send_message(mail)
-
-                            del mail
-                            print(f'{datetime.datetime.now()} {self.mailSendedCounter} Mail sended to: {email}, {name_} {lastname}')
-                        self.mailSendedCounter += 1
+                        recipients_stack.append(email)
+                        recipients_counting+=1
+                        if len(recipients_stack) == 50 or recipients_counting == len(recipient):
+                            print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: Recipients length: {len(recipients_stack)}')
+                            self._send_single_mail(content=content,
+                                                name_='',
+                                                from_=from_,
+                                                recipient=email,
+                                                template_=template_,
+                                                subject=subject,
+                                                footer=footer,
+                                                cc=cc,
+                                                bcc=', '.join(recipients_stack),
+                                                _pdf=pdf,
+                                                continue_in=continue_in)
+                            recipients_stack = []
                     self.reset_counter()
                 else:
                     print('Recipient must be a list')
         except smtplib.SMTPException as err:
             print(f'ERROR: {err}\n\nMail counter: {self.mailSendedCounter - 1}')
-            return err
+            raise err
 
-    def makeMail(self, _content: str, from_, subject, recipient, template, footer:str='', name:str='', _cc='', _bcc=''):
+    def _send_single_mail(self, content, name_, from_, recipient, template_, subject, footer, cc, bcc, _pdf, continue_in:int = 0):
+        mail = self._makeMail(_content=content,
+                                     name=name_,
+                                     from_=from_,
+                                     recipient=recipient,
+                                     template=template_,
+                                     subject=subject,
+                                     footer=footer,
+                                     _cc=cc,
+                                     _bcc=bcc)
+
+        if _pdf is not None and _pdf != '':
+            with open(_pdf, 'rb') as pdf_:
+                part = MIMEApplication(pdf_.read(), Name=os.path.basename(_pdf))
+            part['Content-Disposition'] = f'attachment; filename={os.path.basename(_pdf)}'
+            mail.attach(part)
+        
+        if self.mailSendedCounter > continue_in: # catch por si ocurre Exception por cantidad de mails enviados 
+            try:
+                response = self.conn.send_message(mail)
+            except smtplib.SMTPException as e:
+                if e.args[0] == 421:
+                    self.conn.close()
+                    self.logIn(self.us, self.pw)
+                    response = self.conn.send_message(mail)
+                else:
+                    print(f'Error: {e}\nSe esperara 5 minutos para reanudar')
+                    # messagebox.showwarning(f'Error {e.errno}', f'{e}\nSe esperara 5 minutos para reanudar')
+                    sleep(300)
+                    print('Reanudando...')
+                    self.conn.close()
+                    self.logIn(self.us, self.pw)
+                    response = self.conn.send_message(mail)
+
+            del mail
+            if bcc == '':
+                print(f'{datetime.datetime.now().strftime("%H:%M:%S")}:{self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
+            elif bcc != '' and cc == '':
+                print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: {self.mailSendedCounter} Mail sended to: {bcc} by bcc')
+            elif bcc != '' and cc != '':
+                print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: {self.mailSendedCounter} Mail sended to: {bcc} by bcc \n and to {cc} by cc')
+            print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: responses: {response}')
+        self.mailSendedCounter += 1
+    
+    def _makeMail(self, _content: str, from_, subject, recipient, template, footer='', name='', _cc='', _bcc=''):
         """
         Funcion para crear el objeto mail a enviar. Lo retorna al proceso que lo llama.
+
         :param template: path to html template for te mail
         :param footer:
         :param name:
@@ -156,8 +179,8 @@ class MailingService(object):
         """
         mail = MIMEMultipart('alternative')
         msj = self.getTemplate(template)
-        msj = Template(msj.safe_substitute(content=_content))
-        msj = msj.safe_substitute(nombre=name.title(), pie=footer)
+        msj = Template(msj.safe_substitute(content=_content.strip()))
+        msj = msj.safe_substitute(nombre=name.title(), pie=footer.title())
 
         mail['from'] = from_
         mail['subject'] = subject
@@ -174,6 +197,7 @@ class MailingService(object):
     def getTemplate(self, path):
         """
         Funcion para cargar el html/txt pasado como template por su path
+
         :param path: str path
         :return: Template
         """
@@ -248,7 +272,7 @@ class CsvLoader(object):
         self.csvFile.close()
         
 
-class INIManager(object):
+class INIManager(object): #TODO por completar
     def __init__(self, path_to_ini):
         self.reader = configparser.ConfigParser()
         self.path = path_to_ini
@@ -266,3 +290,4 @@ class INIManager(object):
     def sections(self):
         self.reader.read(self.path)
         return self.reader.sections()
+        
