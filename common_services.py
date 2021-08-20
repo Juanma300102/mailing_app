@@ -140,7 +140,7 @@ class MailingService(object):
         
         if self.mailSendedCounter > continue_in: # catch por si ocurre Exception por cantidad de mails enviados 
             try:
-                self.conn.send_message(mail)
+                response = self.conn.send_message(mail)
             except smtplib.SMTPException as e:
                 print(f'Error: {e}\nSe esperara 5 minutos para reanudar')
                 # messagebox.showwarning(f'Error {e.errno}', f'{e}\nSe esperara 5 minutos para reanudar')
@@ -148,16 +148,16 @@ class MailingService(object):
                 print('Reanudando...')
                 self.conn.close()
                 self.logIn(self.us, self.pw)
-                self.conn.send_message(mail)
+                response = self.conn.send_message(mail)
 
             del mail
             if bcc == '':
-                print(f'{datetime.datetime.now().strftime("%H:%M:%S")} {self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
+                print(f'{datetime.datetime.now().strftime("%H:%M:%S")}:{self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
             elif bcc != '' and cc == '':
-                print(f'{datetime.datetime.now().strftime("%H:%M:%S")} {self.mailSendedCounter} Mail sended to: {bcc} by bcc')
+                print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: {self.mailSendedCounter} Mail sended to: {len(bcc.split(","))} recipients by bcc')
             elif bcc != '' and cc != '':
-                print(f'{datetime.datetime.now().strftime("%H:%M:%S")} {self.mailSendedCounter} Mail sended to: {bcc} by bcc \n and to {cc} by cc')
-                
+                print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: {self.mailSendedCounter} Mail sended to: {bcc} by bcc \n and to {cc} by cc')
+            print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: responses: {response}')
         self.mailSendedCounter += 1
     
     def _makeMail(self, _content: str, from_, subject, recipient, template, footer='', name='', _cc='', _bcc=''):

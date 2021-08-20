@@ -5,21 +5,21 @@ def main():
     mailingBox = MailingService('smtp.hostinger.com', 465)
     mailingBox.logIn('no-reply1@poloticmisiones.com', 'Poloticmailing2021')
 
-    csvPath = '/home/juanma/Escritorio/TRABAJO/2021/CURSOS/JAVA EDICION 2/envios random/java_desaprobados_no_llego_correo.csv' # path.join(os.getcwd(),'tests_mails.csv') # 
+    csvPath = '/home/juanma/Escritorio/TRABAJO/2021/ADVA/TALLERES/inscriptos_taller3_Adva.csv' #path.join(os.getcwd(),'tests_mails.csv')
     csvLoader = CsvLoader(csvPath, 'r', ['correo', 'nombre', 'apellido', 'dni', 'pdf'])
 
     recipients = csvLoader.getContentAsList(firstLineHeaders=True)
     # recipients.append(['comunicacionpoloticmisiones@gmail.com', 'Flor', '', '', ''])
-    recipients.append(['recepcionpoloticmisiones@gmail.com', 'polo', '', '', ''])
+    #recipients.append(['recepcionpoloticmisiones@gmail.com', 'polo', '', '', ''])
     #recipients.append(['pedrozo.juanma@gmail.com', 'Juan Martin', 'Pedrozo', '43944733', ''])
 
     # recipients = 'pedrozo.juanma@gmail.com'
-    subject = 'Trayecto Desarrollo Web Fullstack con Java'
-    from_= 'Silicon Misiones <no-reply1@poloticmisiones.com>'
+    subject = 'Taller 3 - Programacion de Videojuegos'
+    from_= f'PoloTic Misiones <{mailingBox.us}>'
     _content = ''                        
-    _footer = 'Equipo Silicon Misiones'
+    _footer = 'Equipo PoloTic Misiones'
     
-    template = '/home/juanma/Escritorio/PYTHON/mailing_templates/CURSOS/SILICON/JAVA/desaprobados_java_no_les_llego.html'
+    template = '/home/juanma/Escritorio/PYTHON/mailing_templates/ADVA/ADVA_TALLER_3.html'
 
     mailingBox.clasifyAndMakeSendMails(subject=subject,
                                        from_=from_,
