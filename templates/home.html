@@ -2,20 +2,27 @@
 {% block title %}home{% endblock %}
 
 {% block content %}
-<div class="container d-flex align-items-center flex-column shadow p-2 rounded-3 col-5">
-    <h2 >Log In</h2>
-    <form method="POST" action="/make_login" enctype=multipart/form-data>
-        <div class="form-floating mb-3" align="center">
-            <input type="text" class="form-control" id="floatingInput" placeholder="Escriba el asunto aqui" name="correo">
-            <label for="floatingInput">correo</label>
-        </div>
-        
-        <div class="form-floating mb-3" align="center">
-            <input type="password" class="form-control" id="floatingInput" placeholder="Escriba el asunto aqui" name="contraseña">
-            <label for="floatingInput">contraseña</label>
-        </div>
 
-        <button type="submit" class="btn-primary form-control">Acceder</button>
-    </form>
+<div class="container d-flex align-items-center flex-column">
+    <div class="row justify-content-center">
+        <div class="col-md-9">
+            <div class="container-md shadow p-2 rounded-3">
+                <h2 >Log In</h2>
+                <form method="POST" action="/make_login" enctype=multipart/form-data>
+                    <div class="form-floating mb-3" align="center">
+                        <input type="text" class="form-control" id="floatingInput" placeholder="Escriba el asunto aqui" name="correo" required>
+                        <label for="floatingInput">correo</label>
+                    </div>
+                    
+                    <div class="form-floating mb-3" align="center">
+                        <input type="password" class="form-control" id="floatingInput" placeholder="Escriba el asunto aqui" name="contraseña" required>
+                        <label for="floatingInput">contraseña</label>
+                    </div>
+
+                    <button type="submit" class="btn-primary form-control">Acceder</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

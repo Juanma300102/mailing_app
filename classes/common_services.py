@@ -10,6 +10,7 @@ import os
 import csv
 import configparser
 import datetime
+import logging
 
 """
 autor: Pedrozo Juan Martin
@@ -24,6 +25,8 @@ Servicios creados actualmente:
 
 class MailingService(object):
     mailSendedCounter = 1
+    logging.basicConfig(format='%(asctime)s : %(levelname)s: %(message)s', level=logging.DEBUG, datefmt='%Y/%m/%d %H:%M:%S')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, _host, _port):
         """
@@ -50,7 +53,15 @@ class MailingService(object):
         :return:
         """
         try:
-            print('Iniciando sesion...')
+            self.logger.debug('Buscando conexion anterior en caso de existir...')
+            try:
+                del self.conn
+                self.logger.debug('Conexion anterior eliminada')
+            except Exception:
+                self.logger.debug('No existe conexion. Procediendo...')
+            
+            self.logger.info('Iniciando sesion...')
+            
             self.conn = smtplib.SMTP_SSL(host=self.host, port=self.port)
             self.us = us
             self.pw = pw
@@ -58,9 +69,9 @@ class MailingService(object):
             self.conn.ehlo_or_helo_if_needed()
             self.conn.login(us, pw)
             self.conn.auth_login()
-            print('Login exitoso')
+            self.logger.info('Login exitoso')
         except smtplib.SMTPException as a:
-            print(f'Error: Fallo al intentar login\n{a}')
+            self.logger.error('Fallo al intentar login\n{a}')
             raise a
 
     def clasifyAndMakeSendMails(self, subject, from_, recipient, content, is_list_of_recipiets:bool, template_, footer=None,
@@ -100,7 +111,7 @@ class MailingService(object):
                         recipients_stack.append(email)
                         recipients_counting+=1
                         if len(recipients_stack) == 50 or recipients_counting == len(recipient):
-                            print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: Recipients length: {len(recipients_stack)}')
+                            self.logger.debug(f'Recipients length: {len(recipients_stack)}')
                             self._send_single_mail(content=content,
                                                 name_='',
                                                 from_=from_,
@@ -115,9 +126,9 @@ class MailingService(object):
                             recipients_stack = []
                     self.reset_counter()
                 else:
-                    print('Recipient must be a list')
+                    self.logger.warning('Recipient must be a list')
         except smtplib.SMTPException as err:
-            print(f'ERROR: {err}\n\nMail counter: {self.mailSendedCounter - 1}')
+            self.logger.error(f'{err}\n\nMail counter: {self.mailSendedCounter - 1}')
             raise err
 
     def _send_single_mail(self, content, name_, from_, recipient, template_, subject, footer, cc, bcc, _pdf, continue_in:int = 0):
@@ -146,22 +157,22 @@ class MailingService(object):
                     self.logIn(self.us, self.pw)
                     response = self.conn.send_message(mail)
                 else:
-                    print(f'Error: {e}\nSe esperara 5 minutos para reanudar')
+                    self.logger.debug(f'{e}\nSe esperara 5 minutos para reanudar')
                     # messagebox.showwarning(f'Error {e.errno}', f'{e}\nSe esperara 5 minutos para reanudar')
                     sleep(300)
-                    print('Reanudando...')
+                    self.logger.debug(f'Reanudando...')
                     self.conn.close()
                     self.logIn(self.us, self.pw)
                     response = self.conn.send_message(mail)
 
             del mail
             if bcc == '':
-                print(f'{datetime.datetime.now().strftime("%H:%M:%S")}:{self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
+                self.logger.info(f'{self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
             elif bcc != '' and cc == '':
-                print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: {self.mailSendedCounter} Mail sended to: {bcc} by bcc')
+                self.logger.info(f'{self.mailSendedCounter} Mail sended to: {bcc} by bcc')
             elif bcc != '' and cc != '':
-                print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: {self.mailSendedCounter} Mail sended to: {bcc} by bcc \n and to {cc} by cc')
-            print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: responses: {response}')
+                self.logger.info(f'{self.mailSendedCounter} Mail sended to: {bcc} by bcc \n and to {cc} by cc')
+            self.logger.debug(f'responses: {response}')
         self.mailSendedCounter += 1
     
     def _makeMail(self, _content: str, from_, subject, recipient, template, footer='', name='', _cc='', _bcc=''):

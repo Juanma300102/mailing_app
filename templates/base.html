@@ -11,36 +11,69 @@
     <title>{% block title %}{% endblock %}</title>
   </head>
   <body>
-        <div class="row">
-            <div class="col-3"></div>
-            <div class="col-6">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category=='warning' %}
+                                <div class="alert alert-danger alert-dismissible" role="alert" id="liveAlert">
+                                    {{message}}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% elif category=='success' %}
+                                <div class="alert alert-success alert-dismissible" role="alert" id="liveAlert">
+                                    {{message}}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                                </div>
+                            {% elif category=='message' %}
+                            <div class="alert alert-primary alert-dismissible" role="alert" id="liveAlert">
+                                {{message}}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>    
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
                 
-                <div class="container rounded-3 shadow p-3">
-                    <div class="container mt-2 p-2">
-                        <!--<div style="line-height:20px;padding-top:25px;text-align:center; background-image: linear-gradient(to right, #04F0CE, #7C18AE); border-radius: 8px">
-                            <img src="{{url_for('static', filename='home_encabezado.png')}}" style="width: 40%;height:auto;margin-bottom:16px" class="CToWUd" alt="Polo Tic Misiones"/>
-                        </div>-->
+                <div class="container-lg rounded-3 shadow p-3">
+                    <div class="row justify-content-center">
+                        <h1 class="text-center">Mailing App</h1>    
                     </div>
-                    <h1 class="text-center">Mailing App</h1>
-                    <div class="container p-2 mt-4">
-                            {% block content %}
-                            {% endblock %}
+                    <div class="row justify-content-center">
+                        {% block content %}
+                        {% endblock %}
                     </div>
-                </div>
-                
-            </div>
-            <div class="col-3"></div>
-        </div>
 
+                    <div class="row justify-content-center align-items-end text-secondary mt-5">
+                        desarrollo@poloticmisiones.com
+                    </div>
+                    <!--<div class="toast-container">
+                        {% with messages = get_flashed_messages(with_categories=true) %}
+                            {% if messages %}
+                                {% for category, message in messages %}
+                                    {% if category=='toast-success' %}
+                                        <div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                                            <div class="toast-header">
+                                                <img src="..." class="rounded me-2" alt="...">
+                                                <strong class="me-auto">Mail system</strong>
+                                                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+                                            </div>
+                                            <div class="toast-body">
+                                                {{message}}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endwith %}
+                    </div>-->
+                </div>
+            </div>
+        </div>
     <!-- Optional JavaScript; choose one of the two! -->
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
-
-    <!-- Option 2: Separate Popper and Bootstrap JS -->
-    <!--
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
-    -->
   </body>
 </html>
