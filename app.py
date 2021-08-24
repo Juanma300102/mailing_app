@@ -22,11 +22,9 @@ def home():
 @app.route('/mailing', methods=['GET', 'POST'])
 def mailing():
     checker = Checker(app)
-    
     if request.method == 'GET':
-        """try:
-            mailingbox"""
         return render_template('mailing.html')
+    
     elif request.method == 'POST':
         if checker.check_file('csv', request):
             dest_csv = request.files.get('csv')
@@ -62,7 +60,7 @@ def mailing():
         os.remove(os.path.join(os.getcwd(), 'uploads', secure_filename(dest_csv.filename)))
         os.remove(os.path.join(os.getcwd(), 'uploads', secure_filename(template.filename)))
         flash(f'Datos correctamente cargados.', category='toast-success')
-        flash(f'Se enviará el mail a {len(csv)} destinatarios confirmados.  ', category='toast-success')
+        flash(f'Se envio el mail a {len(csv)} destinatarios confirmados.', category='toast-success')
         return redirect(request.url)
 
 @app.route('/make_login', methods=['GET', 'POST'])
