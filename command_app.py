@@ -4,10 +4,10 @@ from sys import path
 from common_services import *
 
 def main():
-    mailingBox = MailingService('smtp.hostinger.com', 465)
-    mailingBox.logIn('no-reply1@poloticmisiones.com', 'Poloticmailing2021')
+    mailingBox = MailingService('smtp.gmail.com', 465)
+    mailingBox.logIn('cursossiliconmisiones@gmail.com', 'cursossilicon2021')
 
-    csvPath = '/home/juanma/Escritorio/PYTHON/Proyectos_Polo/PROGRAMA_TRABAJA_MISIONES_JOVEN/REACT/inactivos_dni_23-08_data.csv' #os.path.join(os.getcwd(),'tests_mails.csv')# 
+    csvPath = '/home/juanma/Escritorio/TRABAJO/2021/SILICON/CHARLAS/charla_prog_para_no_programadores.csv' #os.path.join(os.getcwd(),'tests_mails.csv')# 
     csvLoader = CsvLoader(csvPath, 'r', ['correo', 'nombre', 'apellido', 'dni', 'pdf'])
 
     recipients = csvLoader.getContentAsList(firstLineHeaders=True)
@@ -16,13 +16,13 @@ def main():
     recipients.append(['pedrozo.juanma@gmail.com', 'Juan Martin', 'Pedrozo', '43944733', ''])
 
     # recipients = 'gerardocabraltw@gmail.com'
-    subject = 'Curso React Native - Programa Trabaja Misiones Joven'
-    from_= 'Polotic Misiones <no-reply1@poloticmisiones.com>'
+    subject = 'Ciclo de charlas - Programacion para no programadores'
+    from_= f'Silicon Misiones <{mailingBox.us}>'
     _content = ''                        
-    _footer = 'Equipo Polotic Misiones'
+    _footer = 'Equipo Silicon Misiones'
     #bcc = 'pedrozo.juanma@gmail.com'
     
-    template = '/home/juanma/Escritorio/PYTHON/mailing_templates/CURSOS/POLO/React Native/comunicado_react_native.html'
+    template = '/home/juanma/Escritorio/PYTHON/mailing_templates/Charla_silicon/Programación para progrmadores/segunda_clase_charla_silicon.html'
 
     mailingBox.clasifyAndMakeSendMails(subject=subject,
                                        from_=from_,
@@ -33,7 +33,7 @@ def main():
                                        footer=_footer,
                                        #_name='Marcos Gerardo Cabral',
                                        #bcc=bcc,
-                                       continue_in=0) 
+                                       continue_in=44) 
     csvLoader.close()
     mailingBox.conn.close()
 
