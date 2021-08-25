@@ -13,91 +13,92 @@
         body {
             background-image: url('static/FONDO PARA TRANSMISION_Mesa de trabajo 1 copia 4.png');
             background-size: 100%;
+            height: 600px;
         }
         .header-polo {
             width: 100%;
             height: auto;
         }
 
-        .container, .container-lg {
+        .blured {
             backdrop-filter: blur(10px);
         }
     </style>
   </head>
-  <body class="align-items-center" >
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
-            <div class="row justify-content-center align-items-center">
-                <div class="col-lg-8 align-items-center">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                                {% if category=='warning' %}
-                                    <div class="alert alert-danger alert-dismissible" role="alert" id="liveAlert">
-                                        {{message}}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% elif category=='success' %}
-                                    <div class="alert alert-success alert-dismissible" role="alert" id="liveAlert">
-                                        {{message}}
-                                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                    </div>
-                                {% elif category=='message' %}
-                                <div class="alert alert-primary alert-dismissible" role="alert" id="liveAlert">
+  <body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>    
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-lg-8 align-items-center">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            {% if category=='warning' %}
+                                <div class="alert alert-danger alert-dismissible" role="alert" id="liveAlert">
                                     {{message}}
                                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                                </div>    
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}
-                    {% endwith %}
-                    
-                    <div class="container-lg rounded-3 shadow p-3 mt-2">
-                        <div class="row justify-content-center align-items-center">
-                            <div class="col">
-                                <div class="container justify-content-center align-items-center text-center">
-                                    <img class="header-polo" src="static/home_encabezado.png" alt="poloticmisiones">       
                                 </div>
-                                <div class="row justify-content-start text-light mt-2 ps-5">
-                                    desarrollo@poloticmisiones.com
+                            {% elif category=='success' %}
+                                <div class="alert alert-success alert-dismissible" role="alert" id="liveAlert">
+                                    {{message}}
+                                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                                 </div>
+                            {% elif category=='message' %}
+                            <div class="alert alert-primary alert-dismissible" role="alert" id="liveAlert">
+                                {{message}}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                            </div>    
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+                
+                <div class="blured container-lg rounded-3 shadow p-3 h-100">
+                    <div class="row justify-content-center align-items-center h-100">
+                        <div class="col">
+                            <div class="container justify-content-center align-items-center text-center">
+                                <img class="header-polo" src="static/home_encabezado.png" alt="poloticmisiones">       
                             </div>
-                            <div class="col justify-content-center">
-                                {% block content %}
-                            {% endblock %}
+                            <div class="row justify-content-start text-light mt-2 ps-5">
+                                desarrollo@poloticmisiones.com
                             </div>
+                        </div>
+                        <div class="col justify-content-center">
+                            {% block content %}
+                        {% endblock %}
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="row justify-content-end position-absolute bottom-0 end-0">
-                <div class="toast-container">
-                    {% with messages = get_flashed_messages(with_categories=true) %}
-                        {% if messages %}
-                            {% for category, message in messages %}
-                            <script>console.log('{{message}}')</script>
-                                {% if category == 'toast-success' %}
-                                
-                                    <div id="{{category}}{{message}}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-                                        <div class="toast-header">
-                                        <strong class="me-auto">Informacion del mailing</strong>
-                                        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-                                        </div>
-                                        <div class="toast-body">
-                                        {{ message }}
-                                        </div>
+        </div>
+        <div class="row justify-content-end position-absolute bottom-0 end-0 h-auto">
+            <div class="toast-container">
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                        <script>console.log('{{message}}')</script>
+                            {% if category == 'toast-success' %}
+                            
+                                <div id="{{category}}{{message}}" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+                                    <div class="toast-header">
+                                    <strong class="me-auto">Informacion del mailing</strong>
+                                    <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
                                     </div>
-                                <script>
-                                    var toast = document.getElementById("{{category}}{{message}}");
-                                    var showToast = new bootstrap.Toast(toast);
-                                    showToast.show()
-                                </script>
-                                {% endif %}
-                            {% endfor %}
-                        {% endif %}    
-                    {% endwith %}
-                </div>
+                                    <div class="toast-body">
+                                    {{ message }}
+                                    </div>
+                                </div>
+                            <script>
+                                var toast = document.getElementById("{{category}}{{message}}");
+                                var showToast = new bootstrap.Toast(toast);
+                                showToast.show()
+                            </script>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}    
+                {% endwith %}
             </div>
-        
+        </div>
+            
     <!-- Optional JavaScript; choose one of the two! -->
 
     <!-- Option 1: Bootstrap Bundle with Popper -->

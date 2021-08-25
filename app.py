@@ -13,6 +13,7 @@ app.config['MAX_CONTENT_PATH'] = 10485760
 app.config['SECRET_KEY'] = os.urandom(16)
 
 mailingbox = MailingService('smtp.hostinger.com', 465)
+mailingbox.logger.setLevel('INFO')
 
 @app.route('/', methods=['GET'])
 def home():
@@ -44,9 +45,10 @@ def mailing():
         
         csv = CsvLoader(csv_path, 'r', ['correo', 'nombre', 'apellido', 'dni' ,'pdf']).getContentAsList(firstLineHeaders=True)
         
+        
         try:
             mailingbox.clasifyAndMakeSendMails(subject = request.form.get('asunto'),
-                                               from_ = f'{request.form.get("remitente")} <no-reply1@poloticmisiones.com>',
+                                               from_ = f'{request.form.get("remitente")} <{mailingbox.us}>',
                                                recipient=csv,
                                                content='',
                                                is_list_of_recipiets=True,

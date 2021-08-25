@@ -2,7 +2,7 @@
 {% block title %}mailing{% endblock %}
 
 {% block content %}
-<form class="mt-3" method="POST" action="/mailing" enctype=multipart/form-data>
+<form method="POST" action="/mailing" enctype=multipart/form-data>
     <div class="form-floating mb-3">
         <input type="text" class="form-control" id="floatingInput" placeholder="Escriba el remitente aqui" name="remitente" required>
         <label for="floatingInput">Remitente</label>

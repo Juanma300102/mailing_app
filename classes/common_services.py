@@ -114,7 +114,7 @@ class MailingService(object):
                     for email, name_, lastname, dni, pdf in recipient:
                         recipients_stack.append(email)
                         recipients_counting+=1
-                        if len(recipients_stack) == 30 or recipients_counting == len(recipient):
+                        if len(recipients_stack) == 50 or recipients_counting == len(recipient):
                             self.logger.debug(f'Recipients length: {len(recipients_stack)}')
                             self._send_single_mail(content=content,
                                                 name_='',
@@ -178,7 +178,7 @@ class MailingService(object):
             if bcc == '':
                 self.logger.info(f'{self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
             elif bcc != '' and cc == '':
-                self.logger.info(f'{self.mailSendedCounter} Mail sended to: {bcc} by bcc')
+                self.logger.info(f'{self.mailSendedCounter} Mail sended to: {len(bcc.split(","))} by bcc')
             elif bcc != '' and cc != '':
                 self.logger.info(f'{self.mailSendedCounter} Mail sended to: {bcc} by bcc \n and to {cc} by cc')
             self.logger.debug(f'responses: {response}')
@@ -245,7 +245,6 @@ class MailingService(object):
                     self.logger.debug('Intentando guardar mail')
                     try: 
                         mail_str = mail.as_string()
-                        self.logger.debug(f'Mail a guardar en IMAP: {mail_str}')
                         
                         data = imap_conn.append('INBOX.Sent', '\\Seen', imaplib.Time2Internaldate(time.time()), mail_str.encode('utf8'))
                         self.logger.debug(f'Respuesta de servidor despues de ejecutar append: {data}')
