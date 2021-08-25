@@ -1,6 +1,9 @@
 import email.utils
 import smtplib
+import imaplib
 from email.mime.application import MIMEApplication
+import ssl
+import time
 from tkinter import messagebox
 from string import Template
 from email.mime.multipart import MIMEMultipart
@@ -10,6 +13,7 @@ import os
 import csv
 import configparser
 import datetime
+import time
 import logging
 
 """
@@ -110,7 +114,7 @@ class MailingService(object):
                     for email, name_, lastname, dni, pdf in recipient:
                         recipients_stack.append(email)
                         recipients_counting+=1
-                        if len(recipients_stack) == 50 or recipients_counting == len(recipient):
+                        if len(recipients_stack) == 30 or recipients_counting == len(recipient):
                             self.logger.debug(f'Recipients length: {len(recipients_stack)}')
                             self._send_single_mail(content=content,
                                                 name_='',
@@ -165,6 +169,11 @@ class MailingService(object):
                     self.logIn(self.us, self.pw)
                     response = self.conn.send_message(mail)
 
+            try:
+                self._save_copy_of_sent_mail(mail)
+            except Exception:
+                pass
+            
             del mail
             if bcc == '':
                 self.logger.info(f'{self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
@@ -218,6 +227,35 @@ class MailingService(object):
 
     def reset_counter(self):
         self.mailSendedCounter = 1
+    
+    def _save_copy_of_sent_mail(self, mail: MIMEMultipart):
+        if 'hostinger' in self.host.lower():
+            self.logger.debug('Servidor smtp de hostinger detectado')
+            
+            context = ssl.create_default_context()
+            
+            self.logger.debug('Intentando conectar a servidor IMAP para guardar copia de mail enviado')
+            
+            with imaplib.IMAP4_SSL('imap.hostinger.com', 993, ssl_context=context) as imap_conn:    
+                try:
+                    data = imap_conn.login(self.us, self.pw)
+                    self.logger.debug(f'Iniciada la sesion correctamente {data}')
+                    
+                    self.logger.debug('Conectado correctamente a servidor IMAP')
+                    self.logger.debug('Intentando guardar mail')
+                    try: 
+                        mail_str = mail.as_string()
+                        self.logger.debug(f'Mail a guardar en IMAP: {mail_str}')
+                        
+                        data = imap_conn.append('INBOX.Sent', '\\Seen', imaplib.Time2Internaldate(time.time()), mail_str.encode('utf8'))
+                        self.logger.debug(f'Respuesta de servidor despues de ejecutar append: {data}')
+                        
+                        self.logger.info('Copia del correo guardada en casilla de enviados')
+                    except imaplib.IMAP4_SSL.error as err:
+                        self.logger.warning(f'Fallo al intentar guradar el mail en el servidor IMAP {err}')
+                except imaplib.IMAP4_SSL.error as err:
+                    self.logger.warning(f'Fallo al intentar conectarse al servidor IMAP {err}')
+                
 
 class CsvLoader(object):
     def __init__(self, csvPath: str, mode: str, fields: list):

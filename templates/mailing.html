@@ -2,7 +2,7 @@
 {% block title %}mailing{% endblock %}
 
 {% block content %}
-<form method="POST" action="/mailing" enctype=multipart/form-data>
+<form class="mt-3" method="POST" action="/mailing" enctype=multipart/form-data>
     <div class="form-floating mb-3">
         <input type="text" class="form-control" id="floatingInput" placeholder="Escriba el remitente aqui" name="remitente" required>
         <label for="floatingInput">Remitente</label>
@@ -14,13 +14,13 @@
     </div>
 
     <div class="mb-3">
-        <label for="correo" class="form-label">Destinatarios</label>
+        <label for="correo" class="form-label text-light"><b>Destinatarios</b></label>
         <input type="file" class="form-control" id="correo" name="csv" aria-describedby="csv_descrip" required>
-        <div id="csv_descrip" class="form-text">Debe cargar una planilla de contactos en formato csv, con el siguiente formato: <br>correo | nombre | apellido | dni(opcional) | pdf(opcional)</div>
+        <div id="csv_descrip" class="form-text text-light">Debe cargar una planilla de contactos en formato csv, con el siguiente formato: <br>correo | nombre | apellido | dni(opcional) | pdf(opcional)</div>
     </div>
 
     <div class="mb-3">
-        <label class="form-label" for="cuerpo">Plantilla</label>
+        <label class="form-label text-light" for="cuerpo"><b>Plantilla</b></label>
         <input class="form-control" type="file" id="cuerpo" name="plantilla" required>
     </div>
 
