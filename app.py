@@ -79,7 +79,7 @@ def login():
             try:
                 mailingbox.logIn(request.form.get('correo'), request.form.get('contraseña'))
                 flash('Sesión iniciada correctamente', category='success')
-                return render_template('mailing.html')
+                return redirect(url_for('mailing'))
             except SMTPException as err:
                 print(f'{datetime.datetime.now().strftime("%H:%M:%S")}: Error: {err.args[0]}')
                 if err.args[0] == 535:
