@@ -4,7 +4,6 @@ import imaplib
 from email.mime.application import MIMEApplication
 import ssl
 import time
-from tkinter import messagebox
 from string import Template
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
