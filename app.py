@@ -65,7 +65,7 @@ def mailing():
         flash(f'Se envio el mail a {len(csv)} destinatarios confirmados.', category='toast-success')
         return redirect(request.url)
 
-@app.route('/make_login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
         validacion_correo = 'correo' not in request.form or request.form.get('correo') == ''
