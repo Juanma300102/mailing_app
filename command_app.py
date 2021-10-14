@@ -2,12 +2,12 @@ from os import path
 from common_services import *
 
 def main():
-    mailingBox = MailingService('smtp.hostinger.com', 465)
+    mailingBox = MailingService('smtp.gmail.com', 465)
     mailingBox.logger.setLevel('INFO')
     
-    mailingBox.logIn('no-reply4@poloticmisiones.com', 'Poloticmailing2021')
+    mailingBox.logIn('cursospoloticmisiones@gmail.com', 'ultraTicStar32')
 
-    csvPath = '/home/juanma/Escritorio/TRABAJO/2021/CURSOS/UX_UI_DESGIN EDICION 2/INSCRIPTOS.csv' #path.join(os.getcwd(),'tests_mails.csv')
+    csvPath = 'C:\\Users\\pedro\\Desktop\\Polo\\creador_de_certificados\\certificados\\res.csv' #path.join(os.getcwd(),'tests_mails.csv')
     csvLoader = CsvLoader(csvPath, 'r', ['correo', 'nombre', 'apellido', 'dni', 'pdf'])
 
     recipients = csvLoader.getContentAsList(firstLineHeaders=True)
@@ -16,12 +16,12 @@ def main():
     #recipients.append(['papalucaale20@gmail.com', 'Ale', 'Papaluca', '43944733', ''])
 
     # recipients = 'pedrozo.juanma@gmail.com'
-    subject = 'Curso Diseño UX/UI'
+    subject = 'Certificado de Taller de ADVA - Negocios de Videojuegos'
     from_= f'PoloTic Misiones <{mailingBox.us}>'
     _content = ''                        
     _footer = 'Equipo PoloTic Misiones'
     
-    template = '/home/juanma/Escritorio/PYTHON/mailing_templates/CURSOS/POLO/Diseño UX-UI avanzado/Recordatorio clases/recordatorio_segunda_clase.html'
+    template = 'C:\\Users\\pedro\\Desktop\\Polo\\Mailing_templates\\ADVA\\ADVA_TALLER_5_CERTIFICADOS.html'
 
     mailingBox.clasifyAndMakeSendMails(subject=subject,
                                        from_=from_,
@@ -31,7 +31,7 @@ def main():
                                        is_list_of_recipiets=True,
                                        footer=_footer,
                                        #_name='Juan Martin Pedrozo',
-                                       continue_in=0)
+                                       continue_in=1)
     csvLoader.close()
     mailingBox.conn.close()
 
