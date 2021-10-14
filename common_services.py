@@ -1,6 +1,9 @@
 import email.utils
 import smtplib
+import imaplib
 from email.mime.application import MIMEApplication
+import ssl
+import time
 from tkinter import messagebox
 from string import Template
 from email.mime.multipart import MIMEMultipart
@@ -11,6 +14,7 @@ import csv
 import configparser
 import datetime
 import time
+import logging
 
 """
 autor: Pedrozo Juan Martin
@@ -25,6 +29,8 @@ Servicios creados actualmente:
 
 class MailingService(object):
     mailSendedCounter = 1
+    logging.basicConfig(format='%(asctime)s : %(levelname)s: %(message)s', level=logging.DEBUG, datefmt='%Y/%m/%d %H:%M:%S')
+    logger = logging.getLogger(__name__)
 
     def __init__(self, _host, _port):
         """
@@ -51,7 +57,15 @@ class MailingService(object):
         :return:
         """
         try:
-            print('Iniciando sesion...')
+            self.logger.debug('Buscando conexion anterior en caso de existir...')
+            try:
+                del self.conn
+                self.logger.debug('Conexion anterior eliminada')
+            except Exception:
+                self.logger.debug('No existe conexion. Procediendo...')
+            
+            self.logger.info('Iniciando sesion...')
+            
             self.conn = smtplib.SMTP_SSL(host=self.host, port=self.port)
             self.us = us
             self.pw = pw
@@ -59,9 +73,9 @@ class MailingService(object):
             self.conn.ehlo_or_helo_if_needed()
             self.conn.login(us, pw)
             self.conn.auth_login()
-            print('Login exitoso')
+            self.logger.info('Login exitoso')
         except smtplib.SMTPException as a:
-            print(f'Error: Fallo al intentar login\n{a}')
+            self.logger.error('Fallo al intentar login\n{a}')
             raise a
 
     def clasifyAndMakeSendMails(self, subject, from_, recipient, content, is_list_of_recipiets:bool, template_, footer=None,
@@ -80,7 +94,6 @@ class MailingService(object):
         :param pdf: str
         :return:
         """
-        self.conn.auth_login()
         try:
             if not is_list_of_recipiets:
                 response = self._send_single_mail(content=content,
@@ -111,10 +124,10 @@ class MailingService(object):
                         time.sleep(5)
                     self.reset_counter()
                 else:
-                    print('Recipient must be a list')
+                    self.logger.warning('Recipient must be a list')
         except smtplib.SMTPException as err:
-            print(f'ERROR: {err}\n\nMail counter: {self.mailSendedCounter - 1}')
-            return err
+            self.logger.error(f'{err}\n\nMail counter: {self.mailSendedCounter - 1}')
+            raise err
 
     def _send_single_mail(self, content, name_, from_, recipient, template_, subject, footer, cc, bcc, _pdf, continue_in:int = 0):
         mail = self._makeMail(_content=content,
@@ -135,18 +148,34 @@ class MailingService(object):
         
         if self.mailSendedCounter > continue_in: # catch por si ocurre Exception por cantidad de mails enviados 
             try:
-                self.conn.send_message(mail)
+                response = self.conn.send_message(mail)
             except smtplib.SMTPException as e:
-                print(f'Error: {e}\nSe esperara 5 minutos para reanudar')
-                # messagebox.showwarning(f'Error {e.errno}', f'{e}\nSe esperara 5 minutos para reanudar')
-                sleep(300)
-                print('Reanudando...')
-                self.conn.close()
-                self.logIn(self.us, self.pw)
-                self.conn.send_message(mail)
+                if e.args[0] == 421:
+                    self.conn.close()
+                    self.logIn(self.us, self.pw)
+                    response = self.conn.send_message(mail)
+                else:
+                    self.logger.debug(f'{e}\nSe esperara 5 minutos para reanudar')
+                    # messagebox.showwarning(f'Error {e.errno}', f'{e}\nSe esperara 5 minutos para reanudar')
+                    sleep(300)
+                    self.logger.debug(f'Reanudando...')
+                    self.conn.close()
+                    self.logIn(self.us, self.pw)
+                    response = self.conn.send_message(mail)
 
+            try:
+                self._save_copy_of_sent_mail(mail)
+            except Exception:
+                pass
+            
             del mail
-            print(f'{datetime.datetime.now().strftime("%H:%M:%S")} {self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
+            if bcc == '':
+                self.logger.info(f'{self.mailSendedCounter} Mail sended to: {recipient}, {name_}')
+            elif bcc != '' and cc == '':
+                self.logger.info(f'{self.mailSendedCounter} Mail sended to: {bcc} by bcc')
+            elif bcc != '' and cc != '':
+                self.logger.info(f'{self.mailSendedCounter} Mail sended to: {bcc} by bcc \n and to {cc} by cc')
+            self.logger.debug(f'responses: {response}')
         self.mailSendedCounter += 1
     
     def _makeMail(self, _content: str, from_, subject, recipient, template, footer='', name='', _cc='', _bcc=''):
@@ -192,6 +221,35 @@ class MailingService(object):
 
     def reset_counter(self):
         self.mailSendedCounter = 1
+    
+    def _save_copy_of_sent_mail(self, mail: MIMEMultipart):
+        if 'hostinger' in self.host.lower():
+            self.logger.debug('Servidor smtp de hostinger detectado')
+            
+            context = ssl.create_default_context()
+            
+            self.logger.debug('Intentando conectar a servidor IMAP para guardar copia de mail enviado')
+            
+            with imaplib.IMAP4_SSL('imap.hostinger.com', 993, ssl_context=context) as imap_conn:    
+                try:
+                    data = imap_conn.login(self.us, self.pw)
+                    self.logger.debug(f'Iniciada la sesion correctamente {data}')
+                    
+                    self.logger.debug('Conectado correctamente a servidor IMAP')
+                    self.logger.debug('Intentando guardar mail')
+                    try: 
+                        mail_str = mail.as_string()
+                        self.logger.debug(f'Mail a guardar en IMAP: {mail_str}')
+                        
+                        data = imap_conn.append('INBOX.Sent', '\\Seen', imaplib.Time2Internaldate(time.time()), mail_str.encode('utf8'))
+                        self.logger.debug(f'Respuesta de servidor despues de ejecutar append: {data}')
+                        
+                        self.logger.info('Copia del correo guardada en casilla de enviados')
+                    except imaplib.IMAP4_SSL.error as err:
+                        self.logger.warning(f'Fallo al intentar guradar el mail en el servidor IMAP {err}')
+                except imaplib.IMAP4_SSL.error as err:
+                    self.logger.warning(f'Fallo al intentar conectarse al servidor IMAP {err}')
+                
 
 class CsvLoader(object):
     def __init__(self, csvPath: str, mode: str, fields: list):
