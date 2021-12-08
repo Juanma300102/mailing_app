@@ -1,0 +1,13 @@
+// app global css in SCSS form
+body.body--dark {
+    background: $dark;
+  }
+
+.title {
+    font-weight:500;
+    color: $primary;
+}
+
+.bg-primary {
+  background: $primary;
+}
