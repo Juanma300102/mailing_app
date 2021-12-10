@@ -1,28 +1,17 @@
 <template>
-  <q-layout dark view="lHh Lpr lFf">
+  <q-layout dark view="lhh Lpr lFf">
     <q-header>
       <q-toolbar class="light-dark">
         <q-btn flat round icon="menu" dense @click="toggleLeftDrawer"/>
         <q-toolbar-title>Mailing App</q-toolbar-title>
+        <q-btn round flat class="bg-accent">{{ firstLettersUserName }}</q-btn>
       </q-toolbar>
     </q-header>
     <q-drawer
       v-model="leftDrawerOpen"
       show-if-above
+      class="bg-secondary"
     >
-      <q-list>
-        <q-item-label
-          header
-        >
-          Essential Links
-        </q-item-label>
-
-        <EssentialLink
-          v-for="link in essentialLinks"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
     </q-drawer>
 
     <q-page-container>
@@ -32,71 +21,66 @@
 </template>
 
 <script>
-import EssentialLink from 'components/EssentialLink.vue'
-
-const linksList = [
-  {
-    title: 'Docs',
-    caption: 'quasar.dev',
-    icon: 'school',
-    link: 'https://quasar.dev'
-  },
-  {
-    title: 'Github',
-    caption: 'github.com/quasarframework',
-    icon: 'code',
-    link: 'https://github.com/quasarframework'
-  },
-  {
-    title: 'Discord Chat Channel',
-    caption: 'chat.quasar.dev',
-    icon: 'chat',
-    link: 'https://chat.quasar.dev'
-  },
-  {
-    title: 'Forum',
-    caption: 'forum.quasar.dev',
-    icon: 'record_voice_over',
-    link: 'https://forum.quasar.dev'
-  },
-  {
-    title: 'Twitter',
-    caption: '@quasarframework',
-    icon: 'rss_feed',
-    link: 'https://twitter.quasar.dev'
-  },
-  {
-    title: 'Facebook',
-    caption: '@QuasarFramework',
-    icon: 'public',
-    link: 'https://facebook.quasar.dev'
-  },
-  {
-    title: 'Quasar Awesome',
-    caption: 'Community Quasar projects',
-    icon: 'favorite',
-    link: 'https://awesome.quasar.dev'
-  }
-]
-
-import { defineComponent, ref } from 'vue'
+import { Cookies, Notify } from 'quasar'
+import { validation } from 'boot/axios'
+import { defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
+import { useStore } from 'vuex'
 
 export default defineComponent({
   name: 'MainLayout',
 
-  components: {
-    EssentialLink
+  data () {
+    return {
+      leftDrawerOpen: false
+    }
+  },
+
+  computed: {
+    firstLettersUserName () {
+      const user = this.$q.cookies.get('currentUser')
+      const name = `${user.nombre} ${user.apellido}`
+      let initials = ''
+      name.split(' ').forEach(word => {
+        initials += word[0]
+      })
+      return initials
+    }
+  },
+
+  methods: {
+    toggleLeftDrawer () {
+      this.leftDrawerOpen = !this.leftDrawerOpen
+    }
   },
 
   setup () {
-    const leftDrawerOpen = ref(false)
-
+    const $router = useRouter()
+    const $store = useStore()
+    if (Cookies.has('sessionToken')) {
+      validation.post('/verify_token', {}, {
+        headers: {
+          Authorization: `Bearer ${Cookies.get('sessionToken')}`
+        }
+      })
+        .catch(() => {
+          Notify.create({
+            type: 'info',
+            message: 'Sesión expirada',
+            timeout: 2000
+          })
+          $router.push('/')
+        })
+    } else {
+      Notify.create({
+        type: 'warning',
+        message: 'Debes iniciar sesión',
+        timeout: 2000
+      })
+      $router.push('/')
+    }
     return {
-      essentialLinks: linksList,
-      leftDrawerOpen,
-      toggleLeftDrawer () {
-        leftDrawerOpen.value = !leftDrawerOpen.value
-      }
+      $store
     }
   }
 })

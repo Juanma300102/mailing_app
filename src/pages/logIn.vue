@@ -32,9 +32,8 @@
 </template>
 
 <script>
-import { ref } from 'vue'
 import { useStore } from 'vuex'
-import { Loading, Notify, Dialog } from 'quasar'
+import { Loading, Notify, Dialog, Cookies } from 'quasar'
 import { validation } from 'boot/axios'
 import CryptoJS from 'crypto-js'
 import contactMe from 'components/contactForm.vue'
@@ -66,6 +65,14 @@ export default {
         })
         const user = res.data.user
         const token = res.data.JWT
+        Cookies.set('sessionToken', token, {
+          // secure: true,
+          expires: '2h'
+        })
+        Cookies.set('currentUser', user, {
+          // secure: true,
+          expires: '2h'
+        })
         this.store.dispatch('currentUser/saveTokenAction', { token })
         this.store.dispatch('currentUser/saveUserAction', { user })
         this.$router.push('/h')
@@ -93,16 +100,18 @@ export default {
     }
   },
 
+  data () {
+    return {
+      correo: '',
+      pass: '',
+      isPwd: true
+    }
+  },
+
   setup () {
-    const correo = ref('')
-    const pass = ref('')
-    const isPwd = ref(true)
     const store = useStore()
 
     return {
-      correo,
-      pass,
-      isPwd,
       store
     }
   }

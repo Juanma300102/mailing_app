@@ -7,9 +7,9 @@
         </q-toolbar>
       </q-card-section>
       <q-card-section>
-        <q-input dense  class="q-mb-md" label="Tu correo electronico" type="email" rounded outlined/>
-        <q-input dense class="q-mb-md" label="Cuerpo del mensaje" type="textarea" rounded outlined />
-        <q-input dense  class="q-mb-md" label="Tu nombre completo" type="text" rounded outlined/>
+        <q-input dense class="q-mb-md" label="Tu correo electronico" type="email" rounded outlined/>
+        <q-input class="q-mb-md" label="Cuerpo del mensaje" type="textarea" rounded outlined />
+        <q-input dense class="q-mb-md" label="Tu nombre completo" type="text" rounded outlined/>
       </q-card-section>
       <q-separator/>
       <q-card-actions align="around">
