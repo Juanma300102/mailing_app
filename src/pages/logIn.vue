@@ -3,7 +3,7 @@
     <div class="row justify-center">
       <div class="col col-md-4 col-sm-7">
         <q-card class="items-center">
-          <q-card-section class="">
+          <q-card-section>
             <h4 class="title q-mb-sm">Mailing App</h4>
           </q-card-section>
           <q-separator/>
@@ -79,14 +79,14 @@ export default {
       }).catch((err) => {
         if (err.message.includes('404')) {
           Notify.create({
-            type: 'negative',
+            type: 'warning',
             message: 'Usuario y/o contraseña invalidos'
           })
         } else {
           console.log(err)
           Notify.create({
             type: 'negative',
-            message: 'No se pudo iniciar sesion'
+            message: 'No se pudo iniciar sesion. Contacte al desarrollador'
           })
         }
         Loading.hide()

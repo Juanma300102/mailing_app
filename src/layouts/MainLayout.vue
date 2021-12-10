@@ -39,7 +39,7 @@ export default defineComponent({
   computed: {
     firstLettersUserName () {
       const user = this.$q.cookies.get('currentUser')
-      const name = `${user.nombre} ${user.apellido}`
+      const name = `${user.nombre}`
       let initials = ''
       name.split(' ').forEach(word => {
         initials += word[0]
@@ -63,6 +63,17 @@ export default defineComponent({
           Authorization: `Bearer ${Cookies.get('sessionToken')}`
         }
       })
+        .then(() => {
+          $store.dispatch('saveUserAction',
+            {
+              user: Cookies.has('currentUser') ? Cookies.get('currentUser') : null
+            })
+          $store.dispatch('saveTokenAction',
+            {
+              token: Cookies.has('sessionToken') ? Cookies.get('sessionToken') : null
+            })
+        }
+        )
         .catch(() => {
           Notify.create({
             type: 'info',
