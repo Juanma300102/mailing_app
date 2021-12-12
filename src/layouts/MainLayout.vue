@@ -1,17 +1,51 @@
 <template>
-  <q-layout dark view="lhh Lpr lFf">
+  <q-layout dark view="hhh Lpr lFf">
     <q-header>
       <q-toolbar class="light-dark">
-        <q-btn flat round icon="menu" dense @click="toggleLeftDrawer"/>
         <q-toolbar-title>Mailing App</q-toolbar-title>
-        <q-btn round flat class="bg-accent">{{ firstLettersUserName }}</q-btn>
       </q-toolbar>
     </q-header>
     <q-drawer
-      v-model="leftDrawerOpen"
+      v-model="drawer"
       show-if-above
-      class="bg-secondary"
+      overlay
+      :mini="mini"
+      @mouseover="mini = false"
+      @mouseout="mini = true"
     >
+      <q-scroll-area class="fit">
+        <q-list padding>
+          <q-item clickable v-ripple>
+            <q-item-section avatar>
+              <q-btn round flat class="bg-primary">{{ firstLettersUserName }}</q-btn>
+            </q-item-section>
+            <q-item-section>
+              <div class="col">
+                <div class="row text-h6">
+                  {{ this.userName }}
+                </div>
+                <div class="row text-caption">
+                  {{ this.userEmail }}
+                </div>
+              </div>
+            </q-item-section>
+          </q-item>
+          <q-separator/>
+          <leftMenuItem label="Principal" icon="home" routerPath="/h"/>
+          <leftMenuItem label="Borradores hechos" icon="drafts" routerPath="/h"/>
+          <leftMenuItem label="Envio de correos" icon="send" routerPath="/h"/>
+          <q-separator/>
+          <q-item clickable v-ripple @click="switchTeme()">
+            <q-item-section avatar>
+              <q-icon :name=" this.dark ? 'toggle_on' : 'toggle_off'"/>
+            </q-item-section>
+            <q-item-section>
+              Tema Oscuro
+            </q-item-section>
+          </q-item>
+          <leftMenuItem dense label="Cerrar sesión" icon="logout" routerPath="/" @click="logout()"/>
+        </q-list>
+      </q-scroll-area>
     </q-drawer>
 
     <q-page-container>
@@ -26,37 +60,63 @@ import { validation } from 'boot/axios'
 import { defineComponent } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
+import leftMenuItem from 'components/leftMenuItem.vue'
 
 export default defineComponent({
   name: 'MainLayout',
 
+  components: {
+    leftMenuItem
+  },
+
   data () {
     return {
-      leftDrawerOpen: false
+      drawer: true,
+      mini: true,
+      dark: true
     }
   },
 
   computed: {
     firstLettersUserName () {
-      const user = this.$q.cookies.get('currentUser')
+      const user = this.$q.cookies.has('currentUser') ? this.$q.cookies.get('currentUser') : ''
       const name = `${user.nombre}`
       let initials = ''
       name.split(' ').forEach(word => {
         initials += word[0]
       })
       return initials
+    },
+
+    userName () {
+      return this.store.getters['currentUser/getCurrentUserName']
+    },
+
+    userEmail () {
+      return this.store.getters['currentUser/getCurrentUserEmail']
     }
   },
 
   methods: {
-    toggleLeftDrawer () {
-      this.leftDrawerOpen = !this.leftDrawerOpen
+    logout () {
+      Cookies.remove('currentUser')
+      Cookies.remove('sessionToken')
+      this.$q.notify({
+        type: 'info',
+        message: 'Sesión cerrada correctamente',
+        timeout: 1000,
+        textColor: 'dark'
+      })
+    },
+    switchTeme () {
+      this.dark = !this.dark
+      this.$q.dark.set(this.dark)
     }
   },
 
   setup () {
-    const $router = useRouter()
-    const $store = useStore()
+    const router = useRouter()
+    const store = useStore()
     if (Cookies.has('sessionToken')) {
       validation.post('/verify_token', {}, {
         headers: {
@@ -64,11 +124,11 @@ export default defineComponent({
         }
       })
         .then(() => {
-          $store.dispatch('saveUserAction',
+          store.dispatch('currentUser/saveUserAction',
             {
               user: Cookies.has('currentUser') ? Cookies.get('currentUser') : null
             })
-          $store.dispatch('saveTokenAction',
+          store.dispatch('currentUser/saveTokenAction',
             {
               token: Cookies.has('sessionToken') ? Cookies.get('sessionToken') : null
             })
@@ -80,7 +140,7 @@ export default defineComponent({
             message: 'Sesión expirada',
             timeout: 2000
           })
-          $router.push('/')
+          router.push('/')
         })
     } else {
       Notify.create({
@@ -88,10 +148,10 @@ export default defineComponent({
         message: 'Debes iniciar sesión',
         timeout: 2000
       })
-      $router.push('/')
+      router.push('/')
     }
     return {
-      $store
+      store
     }
   }
 })

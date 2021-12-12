@@ -87,7 +87,8 @@ module.exports = configure(function (ctx) {
       config: {
         loading: {
           spinnerColor: 'accent'
-        }
+        },
+        dark: true
       },
 
       // iconSet: 'material-icons', // Quasar icon set
@@ -101,7 +102,7 @@ module.exports = configure(function (ctx) {
       // directives: [],
 
       // Quasar plugins
-      plugins: ['Loading', 'Notify', 'Dialog', 'Cookies']
+      plugins: ['Loading', 'Notify', 'Dialog', 'Cookies', 'Dark']
     },
 
     // animations: 'all', // --- includes all animations
