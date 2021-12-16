@@ -20,23 +20,28 @@ def main():
     mailingBox = setup('no-reply1@poloticmisiones.com', 'Poloticmailing2021', 'smpt.hostinger.com')
     
     # Direccion de CSV de destinatarios (que incluye pdfs)
-    csvPath = 'C:\\Users\\pedro\\Desktop\\Polo\\creador_de_certificados\\certificados\\res.csv' #path.join(os.getcwd(),'tests_mails.csv')
+    csvPath = path.join(os.getcwd(),'tests_mails.csv') # 'C:\\Users\\pedro\\Desktop\\Polo\\creador_de_certificados\\certificados\\curso_React_Native\\res.csv'
 
     recipients = getContent(csvPath) # Se obtiene el contenido del archivo
     
     
     ## Se configura la info del correo
-    subject = 'Certificado de Taller de ADVA - Negocios de Videojuegos'
+    subject = 'Curso de React Native - Entrega de Certificado'
     from_= f'PoloTic Misiones <{mailingBox.us}>'
+    content = """Por haber finalizado el curso de React Native en el marco del Programa Trabaja Misiones Joven, se hace entrega del correspondiente 
+    certificado.
+    
+    Saludos.
+    Cualquier duda o consulta quedamos a disposicion por los canales habilitados."""
     _footer = 'Equipo PoloTic Misiones'
     
-    template = 'C:\\Users\\pedro\\Desktop\\Polo\\Mailing_templates\\ADVA\\ADVA_TALLER_5_CERTIFICADOS.html'
+    template = 'C:\\Users\\pedro\\Desktop\\Polo\\Mailing_templates\\POLO_MAIL_TEMPLATE_BASIC.html'
 
     mailingBox.clasifyAndMakeSendMails(subject=subject,
                                        from_=from_,
                                        recipient=recipients,
                                        template_=template,
-                                       content='',
+                                       content=content,
                                        is_list_of_recipiets=True,
                                        footer=_footer,
                                        continue_in=0)
