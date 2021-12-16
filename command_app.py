@@ -17,22 +17,23 @@ def getContent(csvPath):
 def main():
     
     #logIn
-    mailingBox = setup('no-reply1@poloticmisiones.com', 'Poloticmailing2021', 'smpt.hostinger.com')
+    mailingBox = setup('no-reply1@poloticmisiones.com', 'Poloticmailing2021', 'smtp.hostinger.com')
     
     # Direccion de CSV de destinatarios (que incluye pdfs)
-    csvPath = path.join(os.getcwd(),'tests_mails.csv') # 'C:\\Users\\pedro\\Desktop\\Polo\\creador_de_certificados\\certificados\\curso_React_Native\\res.csv'
+    csvPath = 'C:\\Users\\pedro\\Desktop\\Polo\\creador_de_certificados\\certificados\\curso_React_Native\\res.csv' # path.join(os.getcwd(),'tests_mails.csv')
 
     recipients = getContent(csvPath) # Se obtiene el contenido del archivo
     
     
     ## Se configura la info del correo
-    subject = 'Curso de React Native - Entrega de Certificado'
+    subject = 'Certificado de curso de React Native - PoloTic Misiones'
     from_= f'PoloTic Misiones <{mailingBox.us}>'
-    content = """Por haber finalizado el curso de React Native en el marco del Programa Trabaja Misiones Joven, se hace entrega del correspondiente 
-    certificado.
+    content = """¡Hola!
     
-    Saludos.
-    Cualquier duda o consulta quedamos a disposicion por los canales habilitados."""
+Nos comunicamos desde el <b>PoloTic Misiones</b> para realizar la <b>entrega del certificado correspondiente por haber aprobado el curso de React Native</b> dictado en el marco del programa <b>Trabaja Misiones Joven</b>.
+Cualquier duda o consultas podes comunicarte por cualquiera de los canales habilitados.
+
+¡Saludos!"""
     _footer = 'Equipo PoloTic Misiones'
     
     template = 'C:\\Users\\pedro\\Desktop\\Polo\\Mailing_templates\\POLO_MAIL_TEMPLATE_BASIC.html'
