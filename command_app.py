@@ -1,24 +1,33 @@
 from os import path
 from common_services import *
 
-def main():
-    mailingBox = MailingService('smtp.gmail.com', 465)
-    mailingBox.logger.setLevel('INFO')
-    
-    mailingBox.logIn('cursospoloticmisiones@gmail.com', 'ultraTicStar32')
+def setup(correo, pass_, servidor): 
+    # Inicio de sesion en sistema de correos
+    mailingBox = MailingService(servidor, 465) # Crea mailing service 
+    mailingBox.logger.setLevel('INFO') # Configura logger de info
+    mailingBox.logIn(correo, pass_) # Inicia sesion
+    return mailingBox
 
-    csvPath = 'C:\\Users\\pedro\\Desktop\\Polo\\creador_de_certificados\\certificados\\res.csv' #path.join(os.getcwd(),'tests_mails.csv')
+def getContent(csvPath):
     csvLoader = CsvLoader(csvPath, 'r', ['correo', 'nombre', 'apellido', 'dni', 'pdf'])
+    content = csvLoader.getContentAsList(firstLineHeaders=True)
+    csvLoader.close()
+    return content
 
-    recipients = csvLoader.getContentAsList(firstLineHeaders=True)
-    # recipients.append(['comunicacionpoloticmisiones@gmail.com', 'Flor', '', '', ''])
-    #recipients.append(['recepcionpoloticmisiones@gmail.com', 'polo', '', '', ''])
-    #recipients.append(['papalucaale20@gmail.com', 'Ale', 'Papaluca', '43944733', ''])
+def main():
+    
+    #logIn
+    mailingBox = setup('no-reply1@poloticmisiones.com', 'Poloticmailing2021', 'smpt.hostinger.com')
+    
+    # Direccion de CSV de destinatarios (que incluye pdfs)
+    csvPath = 'C:\\Users\\pedro\\Desktop\\Polo\\creador_de_certificados\\certificados\\res.csv' #path.join(os.getcwd(),'tests_mails.csv')
 
-    # recipients = 'pedrozo.juanma@gmail.com'
+    recipients = getContent(csvPath) # Se obtiene el contenido del archivo
+    
+    
+    ## Se configura la info del correo
     subject = 'Certificado de Taller de ADVA - Negocios de Videojuegos'
     from_= f'PoloTic Misiones <{mailingBox.us}>'
-    _content = ''                        
     _footer = 'Equipo PoloTic Misiones'
     
     template = 'C:\\Users\\pedro\\Desktop\\Polo\\Mailing_templates\\ADVA\\ADVA_TALLER_5_CERTIFICADOS.html'
@@ -27,12 +36,10 @@ def main():
                                        from_=from_,
                                        recipient=recipients,
                                        template_=template,
-                                       content=_content,
+                                       content='',
                                        is_list_of_recipiets=True,
                                        footer=_footer,
-                                       #_name='Juan Martin Pedrozo',
-                                       continue_in=1)
-    csvLoader.close()
+                                       continue_in=0)
     mailingBox.conn.close()
 
 
