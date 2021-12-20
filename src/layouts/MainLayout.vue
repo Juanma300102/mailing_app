@@ -8,7 +8,6 @@
     <q-drawer
       v-model="drawer"
       show-if-above
-      overlay
       :mini="mini"
       @mouseover="mini = false"
       @mouseout="mini = true"
@@ -16,7 +15,7 @@
       <q-scroll-area class="fit">
         <q-list padding>
           <q-item clickable v-ripple>
-            <q-item-section avatar>
+            <q-item-section avatar class="q-mb-sm">
               <q-btn round flat class="bg-primary">{{ firstLettersUserName }}</q-btn>
             </q-item-section>
             <q-item-section>
@@ -35,7 +34,7 @@
           <leftMenuItem label="Borradores hechos" icon="drafts" routerPath="/h"/>
           <leftMenuItem label="Envio de correos" icon="send" routerPath="/h"/>
           <q-separator/>
-          <q-item clickable v-ripple @click="switchTeme()">
+          <q-item dense clickable v-ripple @click="switchTeme()">
             <q-item-section avatar>
               <q-icon :name=" this.dark ? 'toggle_on' : 'toggle_off'"/>
             </q-item-section>

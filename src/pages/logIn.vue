@@ -22,7 +22,7 @@
           </q-card-section>
           <q-separator/>
           <q-card-actions vertical align="around">
-            <q-btn color="primary" class="q-mb-md" label="Iniciar sesion" @click="makeLogin"/>
+            <q-btn rounded color="primary" class="q-mb-md" label="Iniciar sesion" @click="makeLogin"/>
             <q-btn flat text-color="primary" label="Contactar al desarrollador" @click="showContactForm"/>
           </q-card-actions>
         </q-card>
