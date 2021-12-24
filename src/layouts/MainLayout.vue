@@ -1,7 +1,8 @@
 <template>
   <q-layout dark view="hhh Lpr lFf">
-    <q-header>
-      <q-toolbar class="light-dark">
+    <q-header class="bg-transparent">
+      <q-toolbar class="bg-primary">
+        <q-btn flat round v-if="q.screen.lt.md" icon="menu" @click="this.drawer = !this.drawer"/>
         <q-toolbar-title>Mailing App</q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -54,68 +55,42 @@
 </template>
 
 <script>
-import { Cookies, Notify } from 'quasar'
+import { Cookies, Notify, useQuasar } from 'quasar'
 import { validation } from 'boot/axios'
-import { defineComponent } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useStore } from 'vuex'
 import leftMenuItem from 'components/leftMenuItem.vue'
 
 export default defineComponent({
   name: 'MainLayout',
-
   components: {
     leftMenuItem
   },
-
-  data () {
-    return {
-      drawer: true,
-      mini: true,
-      dark: true
-    }
-  },
-
-  computed: {
-    firstLettersUserName () {
-      const user = this.$q.cookies.has('currentUser') ? this.$q.cookies.get('currentUser') : ''
+  setup () {
+    const router = useRouter()
+    const store = useStore()
+    const q = useQuasar()
+    // DATA
+    const drawer = ref(false)
+    const mini = ref(true)
+    const dark = ref(true)
+    // COMPUTED
+    const firstLettersUserName = computed(() => {
+      const user = q.cookies.has('currentUser') ? q.cookies.get('currentUser') : ''
       const name = `${user.nombre}`
       let initials = ''
       name.split(' ').forEach(word => {
         initials += word[0]
       })
       return initials
-    },
-
-    userName () {
-      return this.store.getters['currentUser/getCurrentUserName']
-    },
-
-    userEmail () {
-      return this.store.getters['currentUser/getCurrentUserEmail']
-    }
-  },
-
-  methods: {
-    logout () {
-      Cookies.remove('currentUser')
-      Cookies.remove('sessionToken')
-      this.$q.notify({
-        type: 'info',
-        message: 'Sesión cerrada correctamente',
-        timeout: 1000,
-        textColor: 'dark'
-      })
-    },
-    switchTeme () {
-      this.dark = !this.dark
-      this.$q.dark.set(this.dark)
-    }
-  },
-
-  setup () {
-    const router = useRouter()
-    const store = useStore()
+    })
+    const userName = computed(() => {
+      return store.getters['currentUser/getCurrentUserName']
+    })
+    const userEmail = computed(() => {
+      return store.getters['currentUser/getCurrentUserEmail']
+    })
     if (Cookies.has('sessionToken')) {
       validation.post('/verify_token', {}, {
         headers: {
@@ -150,7 +125,29 @@ export default defineComponent({
       router.push('/')
     }
     return {
-      store
+      q,
+      store,
+      drawer,
+      mini,
+      dark,
+      firstLettersUserName,
+      userName,
+      userEmail,
+      // METHODS
+      logout () {
+        Cookies.remove('currentUser')
+        Cookies.remove('sessionToken')
+        q.notify({
+          type: 'info',
+          message: 'Sesión cerrada correctamente',
+          timeout: 1000,
+          textColor: 'dark'
+        })
+      },
+      switchTeme () {
+        this.dark = !this.dark
+        q.dark.set(this.dark)
+      }
     }
   }
 })
